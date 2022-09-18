@@ -6,6 +6,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.uuid.Generators;
+
 import ar.cpfw.jqueue.push.JQueueException;
 import ar.cpfw.jqueue.push.JTxQueue;
 
@@ -33,9 +35,11 @@ public class JdbcJQueue implements JTxQueue {
 
     try {
       PreparedStatement st = this.conn.prepareStatement("insert into " + QUEUE_TABLE_NAME
-          + " (id, channel, data, attempt, delay, pushed_at) value (?, ?, ?, null, 0, ?)");
+          + " (id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)");
 
-      st.setString(1, UUID.randomUUID().toString());
+      UUID uuid = Generators.timeBasedGenerator().generate();
+
+      st.setString(1, uuid.toString());
       st.setString(2, channel);
       st.setString(3, data);
       st.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));

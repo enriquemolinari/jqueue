@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import ar.cpfw.jqueue.push.JQueueException;
 import ar.cpfw.jqueue.push.Job;
 import ar.cpfw.jqueue.runner.JQueueRunner;
+import ar.cpfw.jqueue.runner.QueryBuilder;
 
 public class JdbcJQueueRunner implements JQueueRunner {
 
@@ -20,7 +21,6 @@ public class JdbcJQueueRunner implements JQueueRunner {
 
   private String channel;
   private String DEFAULT_CHANNEL = "default";
-  private String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
 
   public JdbcJQueueRunner(String connStr, String user, String pwd) {
     this.user = user;
@@ -32,20 +32,33 @@ public class JdbcJQueueRunner implements JQueueRunner {
   public void executeAll(Job job) {
     var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
     var conn = connection();
+    var queryBuilder = QueryBuilder.build(conn);
+
+    String jobId = null;
+    int currentAttempt = 0;
 
     try {
       conn.setAutoCommit(false);
 
-      ResultSet resultSet = readNextJob(channel, conn);
-      if (resultSet.next()) {
-        String jobId = resultSet.getString(1);
+      while (true) {
+        ResultSet resultSet = readNextJob(channel, conn, queryBuilder);
+        if (!resultSet.next()) {
+          break;
+        }
+        jobId = resultSet.getString(1);
         String jobData = resultSet.getString(2);
-        job.run(jobData);
-        deleteExecutedJob(conn, jobId);
+        currentAttempt = resultSet.getInt(3);
+        try {
+          job.run(jobData);
+          deleteExecutedJob(conn, jobId, queryBuilder);
+        } catch (Exception w) {
+          if (jobId != null) {
+            pushBackToQueueFailedJob(conn, jobId, currentAttempt, queryBuilder);
+          }
+        }
+        conn.commit();
       }
-
-      conn.commit();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       try {
         conn.rollback();
       } catch (SQLException e1) {
@@ -54,28 +67,36 @@ public class JdbcJQueueRunner implements JQueueRunner {
       throw new JQueueException(e, "executeAll could not be done");
     } finally {
       try {
-        conn.setAutoCommit(true);
+        conn.close();
       } catch (SQLException s) {
         throw new JQueueException(s, "executeAll could not be done");
       }
     }
   }
 
-  private void deleteExecutedJob(Connection conn, String jobId) throws SQLException {
-    PreparedStatement st = conn.prepareStatement("delete from " + QUEUE_TABLE_NAME + " where id = ?");
+  private void pushBackToQueueFailedJob(Connection conn, String jobId, int currentAttempt,
+      QueryBuilder queryBuilder) throws SQLException {
+    PreparedStatement st = conn.prepareStatement(queryBuilder.updateQueryOnFail());
+    st.setInt(1, currentAttempt + 1);
+    st.setInt(2, 5); // minutes
+    st.setString(3, jobId);
+    st.executeUpdate();
+  }
+
+  private void deleteExecutedJob(Connection conn, String jobId, QueryBuilder queryBuilder)
+      throws SQLException {
+    PreparedStatement st = conn.prepareStatement(queryBuilder.deleteQueryOnSuccess());
     st.setString(1, jobId);
     st.executeUpdate();
   }
 
-  private ResultSet readNextJob(String channel, Connection conn) throws SQLException {
-    // TODO: incorporar delay
-    // TODO: limit 1 must work in several database vendors
-    // TODO: ver timeouts del for update en cada vendor...
-    PreparedStatement st = conn.prepareStatement("select id, data from " + QUEUE_TABLE_NAME
-        + " where channel = ? and pushed_at <= ? order by pushed_at asc limit 1 for update skip locked");
+  private ResultSet readNextJob(String channel, Connection conn, QueryBuilder queryBuilder)
+      throws SQLException {
+    PreparedStatement st = conn.prepareStatement(queryBuilder.readQuery());
 
+    var time = Timestamp.valueOf(LocalDateTime.now());
     st.setString(1, channel);
-    st.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+    st.setTimestamp(2, time);
 
     ResultSet resultSet = st.executeQuery();
     return resultSet;
