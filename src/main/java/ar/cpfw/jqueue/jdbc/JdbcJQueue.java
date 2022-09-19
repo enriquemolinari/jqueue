@@ -16,7 +16,7 @@ public class JdbcJQueue implements JTxQueue {
   private Connection conn;
   private String channel;
   private String DEFAULT_CHANNEL = "default";
-  private String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
+  private String QUEUE_TABLE_NAME = "esquema1.ar_cpfw_jqueue";
 
   public JdbcJQueue(Connection conn) {
     if (conn == null) {

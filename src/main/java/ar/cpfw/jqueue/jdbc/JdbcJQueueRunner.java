@@ -78,7 +78,7 @@ public class JdbcJQueueRunner implements JQueueRunner {
       QueryBuilder queryBuilder) throws SQLException {
     PreparedStatement st = conn.prepareStatement(queryBuilder.updateQueryOnFail());
     st.setInt(1, currentAttempt + 1);
-    st.setInt(2, 5); // minutes
+    st.setInt(2, 5 * (currentAttempt + 1)); // minutes
     st.setString(3, jobId);
     st.executeUpdate();
   }

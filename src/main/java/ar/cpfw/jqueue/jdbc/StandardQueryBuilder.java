@@ -4,7 +4,7 @@ import ar.cpfw.jqueue.runner.QueryBuilder;
 
 public abstract class StandardQueryBuilder implements QueryBuilder {
 
-  private String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
+  private String QUEUE_TABLE_NAME = "esquema1.ar_cpfw_jqueue";
 
   @Override
   public String readQuery() {
