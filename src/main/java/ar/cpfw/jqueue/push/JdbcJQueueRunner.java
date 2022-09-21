@@ -56,10 +56,10 @@ class JdbcJQueueRunner implements JQueueRunner {
     } catch (SQLException e) {
       try {
         conn.rollback();
+        throw new JQueueException(e, "executeAll could not be done");
       } catch (SQLException e1) {
         throw new JQueueException(e1, "executeAll could not be done");
       }
-      throw new JQueueException(e, "executeAll could not be done");
     } finally {
       try {
         conn.close();
