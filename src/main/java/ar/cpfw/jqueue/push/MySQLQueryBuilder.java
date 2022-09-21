@@ -1,6 +1,6 @@
-package ar.cpfw.jqueue.jdbc;
+package ar.cpfw.jqueue.push;
 
-public class MySQLQueryBuilder extends StandardQueryBuilder {
+class MySQLQueryBuilder extends StandardQueryBuilder {
 
   @Override
   protected String calculateDate() {

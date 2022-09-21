@@ -1,8 +1,6 @@
-package ar.cpfw.jqueue.jdbc;
+package ar.cpfw.jqueue.push;
 
-import ar.cpfw.jqueue.runner.QueryBuilder;
-
-public abstract class StandardQueryBuilder implements QueryBuilder {
+abstract class StandardQueryBuilder implements QueryBuilder {
 
   private String QUEUE_TABLE_NAME = "esquema1.ar_cpfw_jqueue";
 
@@ -13,8 +11,8 @@ public abstract class StandardQueryBuilder implements QueryBuilder {
     // https://github.com/cowtowncoder/java-uuid-generator
     // to make this work
     return "select id, data, attempt from " + QUEUE_TABLE_NAME + ""
-        + " where channel = ? and pushed_at <= " + calculateDate() + " order by id asc " + limitOne()
-        + " for update skip locked";
+        + " where channel = ? and pushed_at <= " + calculateDate() + " order by id asc "
+        + limitOne() + " for update skip locked";
   }
 
   @Override

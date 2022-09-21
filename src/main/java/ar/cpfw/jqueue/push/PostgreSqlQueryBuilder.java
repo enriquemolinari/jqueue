@@ -1,6 +1,6 @@
-package ar.cpfw.jqueue.jdbc;
+package ar.cpfw.jqueue.push;
 
-public class PostgreSQLQueryBuilder extends StandardQueryBuilder {
+class PostgreSqlQueryBuilder extends StandardQueryBuilder {
 
   @Override
   protected String calculateDate() {

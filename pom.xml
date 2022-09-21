@@ -1,12 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>jqueue</groupId>
+	<groupId>ar.cpfw</groupId>
 	<artifactId>jqueue</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<properties>
-		<main.class>ar.main.Main</main.class>
-	</properties>
+   <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
 
 	<dependencies>
 		<dependency>
@@ -25,8 +27,8 @@
 
 	<build>
 		<plugins>
+
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
@@ -37,8 +39,96 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0-M5</version>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<violationSeverity>warning</violationSeverity>
+					<failOnViolation>true</failOnViolation>
+					<configLocation>google_checks.xml</configLocation>
+<!--					<suppressionsLocation>suppressions.xml</suppressionsLocation>-->
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.5.2.0</version>
+				<dependencies>
+					<!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
+					<dependency>
+						<groupId>com.github.spotbugs</groupId>
+						<artifactId>spotbugs</artifactId>
+						<version>4.5.3</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<threshold>Low</threshold>
+					<!--             <xmlOutput>true</xmlOutput>
+            <failOnError>true</failOnError> -->
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.16.0</version>
+				<configuration>
+					<rulesets>
+						<!--
+                All rules 
+                https://github.com/pmd/pmd/tree/master/pmd-java/src/main/resources/category/java -->
+						<ruleset>/category/java/bestpractices.xml</ruleset>
+						<ruleset>/category/java/codestyle.xml</ruleset>
+						<ruleset>/category/java/design.xml</ruleset>
+						<!--               <ruleset>/category/java/documentation.xml</ruleset> -->
+						<ruleset>/category/java/errorprone.xml</ruleset>
+						<ruleset>/category/java/performance.xml</ruleset>
+						<ruleset>/category/java/security.xml</ruleset>
+						<ruleset>/category/java/multithreading.xml</ruleset>
+					</rulesets>
+				</configuration>
+				<!--           <configuration>
+            <includeTests>true</includeTests>
+            <failOnViolation>true</failOnViolation>
+            <skipEmptyReport>false</skipEmptyReport>
+          </configuration> -->
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.7</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<!--          <execution>
+            <id>jacoco-check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>PACKAGE</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.50</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>-->
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

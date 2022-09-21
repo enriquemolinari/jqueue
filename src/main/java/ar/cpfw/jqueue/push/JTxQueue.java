@@ -2,8 +2,6 @@ package ar.cpfw.jqueue.push;
 
 import java.sql.Connection;
 
-import ar.cpfw.jqueue.jdbc.JdbcJQueue;
-
 public interface JTxQueue {
 
   void push(String data);

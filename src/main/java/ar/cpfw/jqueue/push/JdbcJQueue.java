@@ -1,17 +1,13 @@
-package ar.cpfw.jqueue.jdbc;
+package ar.cpfw.jqueue.push;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import com.fasterxml.uuid.Generators;
 
-import ar.cpfw.jqueue.push.JQueueException;
-import ar.cpfw.jqueue.push.JTxQueue;
-
-public class JdbcJQueue implements JTxQueue {
+class JdbcJQueue implements JTxQueue {
 
   private Connection conn;
   private String channel;

@@ -1,12 +1,8 @@
-package ar.cpfw.jqueue.runner;
+package ar.cpfw.jqueue.push;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
-
-import ar.cpfw.jqueue.jdbc.MySQLQueryBuilder;
-import ar.cpfw.jqueue.jdbc.PostgreSQLQueryBuilder;
-import ar.cpfw.jqueue.push.JQueueException;
 
 public interface QueryBuilder {
   String readQuery();
@@ -16,7 +12,7 @@ public interface QueryBuilder {
   String deleteQueryOnSuccess();
 
   static QueryBuilder build(Connection conn) {
-    var map = Map.of("MySQL", new MySQLQueryBuilder(), "PostgreSQL", new PostgreSQLQueryBuilder());
+    var map = Map.of("MySQL", new MySQLQueryBuilder(), "PostgreSQL", new PostgreSqlQueryBuilder());
 
     try {
       var qb = map.get(conn.getMetaData().getDatabaseProductName());

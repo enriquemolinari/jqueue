@@ -1,4 +1,4 @@
-package ar.cpfw.jqueue.jdbc;
+package ar.cpfw.jqueue.push;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,12 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-import ar.cpfw.jqueue.push.JQueueException;
-import ar.cpfw.jqueue.push.Job;
-import ar.cpfw.jqueue.runner.JQueueRunner;
-import ar.cpfw.jqueue.runner.QueryBuilder;
-
-public class JdbcJQueueRunner implements JQueueRunner {
+class JdbcJQueueRunner implements JQueueRunner {
 
   private String user;
   private String pwd;

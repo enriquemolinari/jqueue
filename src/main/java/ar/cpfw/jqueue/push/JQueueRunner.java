@@ -1,7 +1,4 @@
-package ar.cpfw.jqueue.runner;
-
-import ar.cpfw.jqueue.jdbc.JdbcJQueueRunner;
-import ar.cpfw.jqueue.push.Job;
+package ar.cpfw.jqueue.push;
 
 public interface JQueueRunner {
   void executeAll(Job job);
