@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-
 import ar.cpfw.jqueue.JQueueException;
 
 class JdbcJQueueRunner implements JQueueRunner {
@@ -26,7 +25,7 @@ class JdbcJQueueRunner implements JQueueRunner {
   }
 
   @Override
-  public void executeAll(Job job) {
+  public void executeAll(final Job job) {
     try {
       doExectute(job);
     } catch (Exception e) {
@@ -34,7 +33,7 @@ class JdbcJQueueRunner implements JQueueRunner {
     }
   }
 
-  private void doExectute(Job job) throws Exception {
+  private void doExectute(final Job job) throws Exception {
     var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
     var conn = connection();
     var queryBuilder = QueryBuilder.build(conn);
@@ -71,8 +70,8 @@ class JdbcJQueueRunner implements JQueueRunner {
     }
   }
 
-  private void pushBackToQueueFailedJob(Connection conn, String jobId, int currentAttempt,
-      QueryBuilder queryBuilder) throws SQLException {
+  private void pushBackToQueueFailedJob(final Connection conn, final String jobId,
+      final int currentAttempt, final QueryBuilder queryBuilder) throws SQLException {
     PreparedStatement st = conn.prepareStatement(queryBuilder.updateQueryOnFail());
     st.setInt(1, currentAttempt + 1);
     st.setInt(2, 5 * (currentAttempt + 1)); // minutes
@@ -80,8 +79,8 @@ class JdbcJQueueRunner implements JQueueRunner {
     st.executeUpdate();
   }
 
-  private void deleteExecutedJob(Connection conn, String jobId, QueryBuilder queryBuilder)
-      throws SQLException {
+  private void deleteExecutedJob(final Connection conn, final String jobId,
+      final QueryBuilder queryBuilder) throws SQLException {
     PreparedStatement st = conn.prepareStatement(queryBuilder.deleteQueryOnSuccess());
     st.setString(1, jobId);
     st.executeUpdate();
@@ -111,7 +110,7 @@ class JdbcJQueueRunner implements JQueueRunner {
   }
 
   @Override
-  public JQueueRunner channel(String channelName) {
+  public JQueueRunner channel(final String channelName) {
     this.channel = channelName;
     return this;
   }

@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.fasterxml.uuid.Generators;
-
 import ar.cpfw.jqueue.JQueueException;
 
 class JdbcJQueue implements JTxQueue {
@@ -16,7 +15,8 @@ class JdbcJQueue implements JTxQueue {
   private String DEFAULT_CHANNEL = "default";
   private String QUEUE_TABLE_NAME = "esquema1.ar_cpfw_jqueue";
 
-  public JdbcJQueue(Connection conn) {
+  // TODO: change for DataSource
+  public JdbcJQueue(final Connection conn) {
     if (conn == null) {
       throw new JQueueException("An instance of java.sql.Connection is necesary");
     }
@@ -24,7 +24,7 @@ class JdbcJQueue implements JTxQueue {
   }
 
   @Override
-  public void push(String data) {
+  public void push(final String data) {
     if (data == null) {
       throw new JQueueException("data must not be null");
     }
