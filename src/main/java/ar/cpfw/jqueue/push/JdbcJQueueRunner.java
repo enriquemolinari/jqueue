@@ -25,6 +25,14 @@ class JdbcJQueueRunner implements JQueueRunner {
 
   @Override
   public void executeAll(Job job) {
+    try {
+      doExectute(job);
+    } catch (Exception e) {
+      throw new JQueueException(e, "");
+    }
+  }
+
+  private void doExectute(Job job) throws Exception {
     var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
     var conn = connection();
     var queryBuilder = QueryBuilder.build(conn);
@@ -54,18 +62,10 @@ class JdbcJQueueRunner implements JQueueRunner {
         conn.commit();
       }
     } catch (SQLException e) {
-      try {
-        conn.rollback();
-        throw new JQueueException(e, "executeAll could not be done");
-      } catch (SQLException e1) {
-        throw new JQueueException(e1, "executeAll could not be done");
-      }
+      conn.rollback();
     } finally {
-      try {
-        conn.close();
-      } catch (SQLException s) {
-        throw new JQueueException(s, "executeAll could not be done");
-      }
+      conn.setAutoCommit(true);
+      conn.close();
     }
   }
 
