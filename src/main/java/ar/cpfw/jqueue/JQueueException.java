@@ -1,4 +1,4 @@
-package ar.cpfw.jquery;
+package ar.cpfw.jqueue;
 
 /**
  * JQueueException.

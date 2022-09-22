@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
-import ar.cpfw.jquery.JQueueException;
+import ar.cpfw.jqueue.JQueueException;
 
 interface QueryBuilder {
   String readQuery();

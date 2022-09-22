@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-import ar.cpfw.jquery.JQueueException;
+import ar.cpfw.jqueue.JQueueException;
 
 class JdbcJQueueRunner implements JQueueRunner {
 
@@ -30,7 +30,7 @@ class JdbcJQueueRunner implements JQueueRunner {
     try {
       doExectute(job);
     } catch (Exception e) {
-      throw new JQueueException(e, "");
+      throw new JQueueException(e, "executeAll all could not be done");
     }
   }
 

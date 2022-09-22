@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import com.fasterxml.uuid.Generators;
 
-import ar.cpfw.jquery.JQueueException;
+import ar.cpfw.jqueue.JQueueException;
 
 class JdbcJQueue implements JTxQueue {
 
