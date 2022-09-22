@@ -13,7 +13,6 @@ public class JQueueException extends RuntimeException {
   /**
    * JQueueException.
    * 
-   * @author Enrique Molinari
    * @since 0.1
    */
   public JQueueException(String msg) {

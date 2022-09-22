@@ -70,9 +70,11 @@ class JdbcJQueueRunner implements JQueueRunner {
     }
   }
 
-  private void pushBackToQueueFailedJob(final Connection conn, final String jobId,
-      final int currentAttempt, final QueryBuilder queryBuilder) throws SQLException {
-    PreparedStatement st = conn.prepareStatement(queryBuilder.updateQueryOnFail());
+  private void pushBackToQueueFailedJob(final Connection conn,
+      final String jobId, final int currentAttempt,
+      final QueryBuilder queryBuilder) throws SQLException {
+    PreparedStatement st =
+        conn.prepareStatement(queryBuilder.updateQueryOnFail());
     st.setInt(1, currentAttempt + 1);
     st.setInt(2, 5 * (currentAttempt + 1)); // minutes
     st.setString(3, jobId);
@@ -81,13 +83,14 @@ class JdbcJQueueRunner implements JQueueRunner {
 
   private void deleteExecutedJob(final Connection conn, final String jobId,
       final QueryBuilder queryBuilder) throws SQLException {
-    PreparedStatement st = conn.prepareStatement(queryBuilder.deleteQueryOnSuccess());
+    PreparedStatement st =
+        conn.prepareStatement(queryBuilder.deleteQueryOnSuccess());
     st.setString(1, jobId);
     st.executeUpdate();
   }
 
-  private ResultSet readNextJob(String channel, Connection conn, QueryBuilder queryBuilder)
-      throws SQLException {
+  private ResultSet readNextJob(String channel, Connection conn,
+      QueryBuilder queryBuilder) throws SQLException {
     PreparedStatement st = conn.prepareStatement(queryBuilder.readQuery());
 
     var time = Timestamp.valueOf(LocalDateTime.now());
