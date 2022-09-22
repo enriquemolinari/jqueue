@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import com.fasterxml.uuid.Generators;
 
+import ar.cpfw.jquery.JQueueException;
+
 class JdbcJQueue implements JTxQueue {
 
   private Connection conn;

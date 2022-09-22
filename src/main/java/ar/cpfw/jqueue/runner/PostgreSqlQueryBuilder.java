@@ -1,4 +1,4 @@
-package ar.cpfw.jqueue.push;
+package ar.cpfw.jqueue.runner;
 
 class PostgreSqlQueryBuilder extends StandardQueryBuilder {
 

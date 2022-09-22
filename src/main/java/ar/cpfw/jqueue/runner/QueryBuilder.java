@@ -1,10 +1,12 @@
-package ar.cpfw.jqueue.push;
+package ar.cpfw.jqueue.runner;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
-public interface QueryBuilder {
+import ar.cpfw.jquery.JQueueException;
+
+interface QueryBuilder {
   String readQuery();
 
   String updateQueryOnFail();
