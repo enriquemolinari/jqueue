@@ -4,11 +4,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.sql.DataSource;
-import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
@@ -21,18 +18,18 @@ import com.mysql.cj.jdbc.MysqlDataSource;
  *  then restart your PC
  * </pre>
  */
-@Testcontainers(disabledWithoutDocker = true)
+// @Testcontainers(disabledWithoutDocker = true)
 public class PushTest {
 
   /**
    * The database container.
    */
-  @Container
+  // @Container
   private final JdbcDatabaseContainer<?> container =
       new MySQLContainer<>(DockerImageName.parse("mysql/mysql-server:latest")
           .asCompatibleSubstituteFor("mysql"));
 
-  @Test
+  // @Test
   public void test1() throws SQLException {
     try (Connection conn = this.source().getConnection()) {
       Statement stmt = conn.createStatement();

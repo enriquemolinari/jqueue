@@ -13,12 +13,13 @@ class JdbcJQueue implements JTxQueue {
   private Connection conn;
   private String channel;
   private String DEFAULT_CHANNEL = "default";
-  private String QUEUE_TABLE_NAME = "esquema1.ar_cpfw_jqueue";
+  private String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
 
   // TODO: change for DataSource
   public JdbcJQueue(final Connection conn) {
     if (conn == null) {
-      throw new JQueueException("An instance of java.sql.Connection is necesary");
+      throw new JQueueException(
+          "An instance of java.sql.Connection is necesary");
     }
     this.conn = conn;
   }
@@ -32,7 +33,8 @@ class JdbcJQueue implements JTxQueue {
     var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
 
     try {
-      PreparedStatement st = this.conn.prepareStatement("insert into " + QUEUE_TABLE_NAME
+      PreparedStatement st = this.conn.prepareStatement("insert into "
+          + QUEUE_TABLE_NAME
           + " (id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)");
 
       UUID uuid = Generators.timeBasedGenerator().generate();
