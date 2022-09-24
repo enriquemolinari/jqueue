@@ -6,22 +6,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
+import javax.sql.DataSource;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.jcabi.jdbc.JdbcSession;
 import com.jcabi.jdbc.Outcome;
 
-public class PushTestHsqlDb {
-
-  // private Connection getConn() throws SQLException {
-  // return DriverManager
-  // .getConnection("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true", "SA", "");
-  // }
-
-  // TODO: Test que el push esta en una Tx con una conn iniciada...
-  // Cambiar a DataSource
-  // Ver como mejorar si uso esquema o no...
+public class PushHsqlDbTest {
 
   @BeforeEach
   public void setUp() throws SQLException {
@@ -34,11 +26,8 @@ public class PushTestHsqlDb {
   }
 
   @Test
-  public void queuePushIsRollbackIfTxFail() throws SQLException {
-    var ds = new JDBCDataSource();
-    ds.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
-    ds.setUser("SA");
-    ds.setPassword("");
+  public void queuePushIsRollbackIfTxFailTest() throws SQLException {
+    var ds = hSqlDataSource();
 
     new JdbcSession(ds).autocommit(false)
         .sql("CREATE TABLE if not exists ar_cpfw_jqueue ( "
@@ -85,11 +74,8 @@ public class PushTestHsqlDb {
   }
 
   @Test
-  public void queuePushCanBeDoneInSpecificChannel() throws SQLException {
-    var ds = new JDBCDataSource();
-    ds.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
-    ds.setUser("SA");
-    ds.setPassword("");
+  public void queuePushCanBeDoneInSpecificChannelTest() throws SQLException {
+    var ds = hSqlDataSource();
 
     new JdbcSession(ds)
         .sql("CREATE TABLE if not exists ar_cpfw_jqueue ( "
@@ -141,11 +127,8 @@ public class PushTestHsqlDb {
   }
 
   @Test
-  public void queuePushCanBeDoneInDefaultChannel() throws SQLException {
-    var ds = new JDBCDataSource();
-    ds.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
-    ds.setUser("SA");
-    ds.setPassword("");
+  public void queuePushCanBeDoneInDefaultChannelTest() throws SQLException {
+    var ds = hSqlDataSource();
 
     new JdbcSession(ds)
         .sql("CREATE TABLE if not exists ar_cpfw_jqueue ( "
@@ -196,5 +179,11 @@ public class PushTestHsqlDb {
     assertEquals("0", outcome.get("delay"));
   }
 
-
+  private DataSource hSqlDataSource() {
+    final var ds = new JDBCDataSource();
+    ds.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
+    ds.setUser("SA");
+    ds.setPassword("");
+    return ds;
+  }
 }

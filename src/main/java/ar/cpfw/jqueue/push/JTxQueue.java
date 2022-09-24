@@ -1,6 +1,7 @@
 package ar.cpfw.jqueue.push;
 
 import java.sql.Connection;
+import javax.sql.DataSource;
 
 /**
  * JTxQueue.
@@ -29,8 +30,12 @@ public interface JTxQueue {
 
   JTxQueue channel(String channelName);
 
-  static JTxQueue queue(Connection c) {
-    return new JdbcJQueue(c);
+  static JTxQueue queue(DataSource dataSource) {
+    return new JdbcJQueue(dataSource);
+  }
+
+  static JTxQueue queue(Connection conn) {
+    return new JdbcJQueue(conn);
   }
 
 }

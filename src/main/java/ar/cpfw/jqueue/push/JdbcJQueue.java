@@ -2,9 +2,11 @@ package ar.cpfw.jqueue.push;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import javax.sql.DataSource;
 import com.fasterxml.uuid.Generators;
 import ar.cpfw.jqueue.JQueueException;
 
@@ -15,7 +17,19 @@ class JdbcJQueue implements JTxQueue {
   private String DEFAULT_CHANNEL = "default";
   private String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
 
-  // TODO: change for DataSource
+  public JdbcJQueue(final DataSource dataSource) {
+    if (conn == null) {
+      throw new JQueueException(
+          "An instance of java.sql.Connection is necesary");
+    }
+    try {
+      this.conn = dataSource.getConnection();
+    } catch (SQLException e) {
+      throw new JQueueException(e,
+          "java.sql.Connection could not be obtained from the dataSource");
+    }
+  }
+
   public JdbcJQueue(final Connection conn) {
     if (conn == null) {
       throw new JQueueException(

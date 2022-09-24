@@ -1,27 +1,24 @@
 package ar.cpfw.jqueue.runner;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Objects;
+import javax.sql.DataSource;
 import ar.cpfw.jqueue.JQueueException;
 
 class JdbcJQueueRunner implements JQueueRunner {
 
-  private String user;
-  private String pwd;
-  private String connStr;
-
+  private DataSource dataSource;
   private String channel;
   private String DEFAULT_CHANNEL = "default";
 
-  public JdbcJQueueRunner(String connStr, String user, String pwd) {
-    this.user = user;
-    this.pwd = pwd;
-    this.connStr = connStr;
+  public JdbcJQueueRunner(DataSource dataSource) {
+    Objects.requireNonNull(dataSource, "dataSource must not be null");
+    this.dataSource = dataSource;
   }
 
   @Override
@@ -35,7 +32,7 @@ class JdbcJQueueRunner implements JQueueRunner {
 
   private void doExectute(final Job job) throws Exception {
     var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
-    var conn = connection();
+    var conn = this.dataSource.getConnection();
     var queryBuilder = QueryBuilder.build(conn);
 
     String jobId = null;
@@ -64,6 +61,7 @@ class JdbcJQueueRunner implements JQueueRunner {
       }
     } catch (SQLException e) {
       conn.rollback();
+      throw e;
     } finally {
       conn.setAutoCommit(true);
       conn.close();
@@ -99,17 +97,6 @@ class JdbcJQueueRunner implements JQueueRunner {
 
     ResultSet resultSet = st.executeQuery();
     return resultSet;
-  }
-
-  private Connection connection() {
-    String url = this.connStr;
-    String user = this.user;
-    String password = this.pwd;
-    try {
-      return DriverManager.getConnection(url, user, password);
-    } catch (SQLException e) {
-      throw new JQueueException(e, "Connection could not be stablished");
-    }
   }
 
   @Override

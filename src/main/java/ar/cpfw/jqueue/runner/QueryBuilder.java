@@ -8,6 +8,7 @@ import ar.cpfw.jqueue.JQueueException;
 interface QueryBuilder {
   static final String POSTGRE_SQL = "PostgreSQL";
   static final String MY_SQL = "MySQL";
+  static final String HSQLDB = "HSQL Database Engine";
 
   String readQuery();
 
@@ -17,7 +18,7 @@ interface QueryBuilder {
 
   static QueryBuilder build(final Connection conn) {
     final var map = Map.of(MY_SQL, new MySQLQueryBuilder(), POSTGRE_SQL,
-        new PostgreSqlQueryBuilder());
+        new PostgreSqlQueryBuilder(), HSQLDB, new HsqlDbQueryBuilder());
 
     try {
       final var qb = map.get(conn.getMetaData().getDatabaseProductName());
