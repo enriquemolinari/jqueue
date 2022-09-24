@@ -15,7 +15,7 @@ public class JQueueException extends RuntimeException {
    * 
    * @since 0.1
    */
-  public JQueueException(String msg) {
+  public JQueueException(final String msg) {
     super(msg);
   }
 
@@ -25,7 +25,7 @@ public class JQueueException extends RuntimeException {
    * @author Enrique Molinari
    * @since 0.1
    */
-  public JQueueException(Exception e, String msg) {
-    super(msg, e);
+  public JQueueException(final Exception exception, final String msg) {
+    super(msg, exception);
   }
 }

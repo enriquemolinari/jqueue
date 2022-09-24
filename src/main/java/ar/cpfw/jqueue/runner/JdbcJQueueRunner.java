@@ -14,9 +14,9 @@ class JdbcJQueueRunner implements JQueueRunner {
 
   private DataSource dataSource;
   private String channel;
-  private String DEFAULT_CHANNEL = "default";
-  private String tableName;
-  private String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
+  private static final String DEFAULT_CHANNEL = "default";
+  private final String tableName;
+  private static final String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
 
 
   public JdbcJQueueRunner(DataSource dataSource, String tableName) {
