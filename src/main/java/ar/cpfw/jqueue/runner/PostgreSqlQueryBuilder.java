@@ -2,6 +2,10 @@ package ar.cpfw.jqueue.runner;
 
 class PostgreSqlQueryBuilder extends StandardQueryBuilder {
 
+  public PostgreSqlQueryBuilder(String tableName) {
+    super(tableName);
+  }
+
   @Override
   protected String calculateDate() {
     return "(CAST (? as TIMESTAMP) - (INTERVAL '1 minute' * delay))";

@@ -1,8 +1,16 @@
 package ar.cpfw.jqueue.runner;
 
+import java.util.Objects;
+
 abstract class StandardQueryBuilder implements QueryBuilder {
 
-  private String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
+  private String tableName;
+
+  public StandardQueryBuilder(final String tableName) {
+    Objects.requireNonNull(tableName,
+        "A database table name must be specified");
+    this.tableName = tableName;
+  }
 
   @Override
   public String readQuery() {
@@ -10,7 +18,7 @@ abstract class StandardQueryBuilder implements QueryBuilder {
     // I'm using a timeBased UUID
     // https://github.com/cowtowncoder/java-uuid-generator
     // to make this work
-    return "select id, data, attempt from " + QUEUE_TABLE_NAME + ""
+    return "select id, data, attempt from " + this.tableName + ""
         + " where channel = ? and pushed_at <= " + calculateDate()
         + " order by id asc " + limitOne() + " " + lock();
   }
@@ -21,13 +29,13 @@ abstract class StandardQueryBuilder implements QueryBuilder {
 
   @Override
   public String updateQueryOnFail() {
-    return "update " + QUEUE_TABLE_NAME
+    return "update " + this.tableName
         + " set attempt = ?, delay = ? where id = ?";
   }
 
   @Override
   public String deleteQueryOnSuccess() {
-    return "delete from " + QUEUE_TABLE_NAME + " where id = ?";
+    return "delete from " + this.tableName + " where id = ?";
   }
 
   protected abstract String calculateDate();

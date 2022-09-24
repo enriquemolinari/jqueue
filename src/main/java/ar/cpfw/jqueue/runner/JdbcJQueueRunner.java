@@ -15,10 +15,14 @@ class JdbcJQueueRunner implements JQueueRunner {
   private DataSource dataSource;
   private String channel;
   private String DEFAULT_CHANNEL = "default";
+  private String tableName;
+  private String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
 
-  public JdbcJQueueRunner(DataSource dataSource) {
+
+  public JdbcJQueueRunner(DataSource dataSource, String tableName) {
     Objects.requireNonNull(dataSource, "dataSource must not be null");
     this.dataSource = dataSource;
+    this.tableName = tableName;
   }
 
   @Override
@@ -32,8 +36,9 @@ class JdbcJQueueRunner implements JQueueRunner {
 
   private void doExectute(final Job job) throws Exception {
     var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
+    var table = this.tableName != null ? this.tableName : QUEUE_TABLE_NAME;
     var conn = this.dataSource.getConnection();
-    var queryBuilder = QueryBuilder.build(conn);
+    var queryBuilder = QueryBuilder.build(conn, table);
 
     String jobId = null;
     int currentAttempt = 0;

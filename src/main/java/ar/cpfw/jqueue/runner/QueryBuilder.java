@@ -16,9 +16,10 @@ interface QueryBuilder {
 
   String deleteQueryOnSuccess();
 
-  static QueryBuilder build(final Connection conn) {
-    final var map = Map.of(MY_SQL, new MySQLQueryBuilder(), POSTGRE_SQL,
-        new PostgreSqlQueryBuilder(), HSQLDB, new HsqlDbQueryBuilder());
+  static QueryBuilder build(final Connection conn, final String tableName) {
+    final var map = Map.of(MY_SQL, new MySQLQueryBuilder(tableName),
+        POSTGRE_SQL, new PostgreSqlQueryBuilder(tableName), HSQLDB,
+        new HsqlDbQueryBuilder(tableName));
 
     try {
       final var qb = map.get(conn.getMetaData().getDatabaseProductName());
