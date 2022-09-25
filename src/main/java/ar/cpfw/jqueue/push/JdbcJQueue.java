@@ -19,7 +19,7 @@ class JdbcJQueue implements JTxQueue {
   private static final int PK_COLUMN = 1;
   private static final String DS_IS_NECESARY =
       "An instance of javax.sql.DataSource is necesary";
-  private Connection conn;
+  private Connection connection;
   private String channel;
   private static final String DEFAULT_CHANNEL = "default";
   private static final String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
@@ -29,7 +29,7 @@ class JdbcJQueue implements JTxQueue {
     Objects.requireNonNull(dataSource, DS_IS_NECESARY);
     this.databaseTableName = tableName;
     try {
-      this.conn = dataSource.getConnection();
+      this.connection = dataSource.getConnection();
     } catch (SQLException e) {
       throw new JQueueException(e,
           "java.sql.Connection could not be obtained from the dataSource");
@@ -39,7 +39,7 @@ class JdbcJQueue implements JTxQueue {
   public JdbcJQueue(final Connection conn, final String tableName) {
     Objects.requireNonNull(conn, DS_IS_NECESARY);
 
-    this.conn = conn;
+    this.connection = conn;
     this.databaseTableName = tableName;
   }
 
@@ -52,8 +52,10 @@ class JdbcJQueue implements JTxQueue {
         : QUEUE_TABLE_NAME;
 
     try {
-      PreparedStatement st = this.conn.prepareStatement("insert into " + table
-          + " (id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)");
+      final PreparedStatement st =
+          this.connection.prepareStatement("insert into " + table
+              + " (id, channel, data, attempt, delay, pushed_at) "
+              + "values (?, ?, ?, null, 0, ?)");
 
       final UUID uuid = Generators.timeBasedGenerator().generate();
 
@@ -63,7 +65,7 @@ class JdbcJQueue implements JTxQueue {
       st.setTimestamp(PUSHEDAT_COLUMN, Timestamp.valueOf(LocalDateTime.now()));
       st.executeUpdate();
 
-    } catch (Exception e) {
+    } catch (SQLException e) {
       throw new JQueueException(e, "push cannot be done");
     }
   }

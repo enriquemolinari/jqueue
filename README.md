@@ -1,3 +1,3 @@
 # jqueue
 
-![CI](https://github.com/enriquemolinari/jqueue/actions/workflows/tests.yml/badge.svg) [![codecov](https://codecov.io/gh/enriquemolinari/jqueue/branch/main/graph/badge.svg?token=GXRDRAK5GH)](https://codecov.io/gh/enriquemolinari/jqueue)
+![CI](https://github.com/enriquemolinari/jqueue/actions/workflows/tests.yml/badge.svg) [![codecov](https://codecov.io/gh/enriquemolinari/jqueue/branch/main/graph/badge.svg?token=GXRDRAK5GH)](https://codecov.io/gh/enriquemolinari/jqueue) [![Maintainability](https://api.codeclimate.com/v1/badges/c5c3e4a53ba6faf2d9cc/maintainability)](https://codeclimate.com/github/enriquemolinari/jqueue/maintainability)
