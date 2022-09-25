@@ -10,7 +10,7 @@ In a Microservices / Event Based architecture it is a common pattern to make cha
 
 To push something on the default channel of the queue you can do this:
 
-´´´java
+```java
 var jqueue = JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */);
 jqueue.push({
    "type": "job_type1",
@@ -19,11 +19,11 @@ jqueue.push({
       "value": ""
    }
 });
-´´´
+```
 
 To push something on an specific channel of the queue you can do this:
 
-´´´java
+```java
 var jqueue = JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */);
 jqueue.channel("achannel").push({
    "type": "job_type1",
@@ -32,11 +32,11 @@ jqueue.channel("achannel").push({
       "value": ""
    }
 });
-´´´
+```
 
 The following snippet executes all the entries in the queue in a loop until is empty:
 
-´´´java
+```java
 var runner = JQueueRunner.runner(/* a JDBC DataSource */);
 
 runner.executeAll(new Job() {
@@ -45,14 +45,15 @@ runner.executeAll(new Job() {
 	//do something with data
   }
 });
-´´´
+```
+
 Your jobs must implement the ´Job´ interface.
 
 ## Requirements
 
 JQueue currently supports PostgreSQL 9.5+ and MySQL 8.0+. To work properly, it uses the `select for update skip locked` which is a feature that some relational databases have incorporated few years ago. This feature eliminates any type of contention that might occure when Queue are implemented using SQL.
 
-´´´sql
+```sql
 CREATE TABLE ar_cpfw_jqueue
 ( 
   id char(36) NOT NULL,
@@ -65,5 +66,6 @@ CREATE TABLE ar_cpfw_jqueue
 );
 
 CREATE INDEX channel ON ar_cpfw_jqueue (channel); 
-´´´
+```
+
 The name of the table ´ar_cpfw_jqueue´ can be any other of your choice. Then use the correct factory method (´´´JQueueRunner.runner´´´ and ´´´JTxQueue.queue´´´) to pass the name of the table you have chosen and created.  
