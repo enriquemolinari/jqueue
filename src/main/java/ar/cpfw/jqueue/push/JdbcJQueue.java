@@ -13,6 +13,8 @@ import ar.cpfw.jqueue.JQueueException;
 
 class JdbcJQueue implements JTxQueue {
 
+  private static final String DATA_SOURCE_IS_NECESARY =
+      "An instance of javax.sql.DataSource is necesary";
   private Connection conn;
   private String channel;
   private static final String DEFAULT_CHANNEL = "default";
@@ -20,8 +22,7 @@ class JdbcJQueue implements JTxQueue {
   private final String tableName;
 
   public JdbcJQueue(final DataSource dataSource, String tableName) {
-    Objects.requireNonNull(dataSource,
-        "An instance of javax.sql.DataSource is necesary");
+    Objects.requireNonNull(dataSource, DATA_SOURCE_IS_NECESARY);
     this.tableName = tableName;
     try {
       this.conn = dataSource.getConnection();
@@ -32,8 +33,7 @@ class JdbcJQueue implements JTxQueue {
   }
 
   public JdbcJQueue(final Connection conn, String tableName) {
-    Objects.requireNonNull(conn,
-        "An instance of javax.sql.DataSource is necesary");
+    Objects.requireNonNull(conn, DATA_SOURCE_IS_NECESARY);
 
     this.conn = conn;
     this.tableName = tableName;
@@ -43,8 +43,9 @@ class JdbcJQueue implements JTxQueue {
   public void push(final String data) {
     Objects.requireNonNull(data, "data must not be null");
 
-    var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
-    var table = this.tableName != null ? this.tableName : QUEUE_TABLE_NAME;
+    final var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
+    final var table =
+        this.tableName != null ? this.tableName : QUEUE_TABLE_NAME;
 
     try {
       PreparedStatement st = this.conn.prepareStatement("insert into " + table

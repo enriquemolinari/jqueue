@@ -47,7 +47,7 @@ class JdbcJQueueRunner implements JQueueRunner {
       conn.setAutoCommit(false);
 
       while (true) {
-        ResultSet resultSet = readNextJob(channel, conn, queryBuilder);
+        final ResultSet resultSet = readNextJob(channel, conn, queryBuilder);
         if (!resultSet.next()) {
           break;
         }
