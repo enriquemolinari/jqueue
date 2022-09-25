@@ -59,9 +59,10 @@ class JdbcJQueueRunner implements JQueueRunner {
           deleteExecutedJob(conn, jobId, queryBuilder);
         } catch (Exception w) {
           if (jobId != null) {
-            pushBackToQueueFailedJob(conn, jobId, currentAttempt, queryBuilder);
+            pushBackFailedJob(conn, jobId, currentAttempt, queryBuilder);
           }
         }
+        resultSet.close();
         conn.commit();
       }
     } catch (SQLException e) {
@@ -73,7 +74,7 @@ class JdbcJQueueRunner implements JQueueRunner {
     }
   }
 
-  private void pushBackToQueueFailedJob(final Connection conn,
+  private void pushBackFailedJob(final Connection conn,
       final String jobId, final int currentAttempt,
       final QueryBuilder queryBuilder) throws SQLException {
     PreparedStatement st =

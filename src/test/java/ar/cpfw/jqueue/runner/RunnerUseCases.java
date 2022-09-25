@@ -123,17 +123,17 @@ public class RunnerUseCases {
   }
 
   public void runnerWorksWithTwoJobs() throws SQLException {
-    new JdbcSession(this.dataSource).autocommit(false)
-        .sql("insert into ar_cpfw_jqueue "
-            + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
+    new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
+        + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
         .set(Generators.timeBasedGenerator().generate().toString())
         .set("default").set("FirstJob")
-        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(2))).execute()
-        .sql("insert into ar_cpfw_jqueue"
-            + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
+        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(2))).execute();
+
+    new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue"
+        + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
         .set(Generators.timeBasedGenerator().generate().toString())
         .set("default").set("SecondJob")
-        .set(Timestamp.valueOf(LocalDateTime.now())).execute().commit();
+        .set(Timestamp.valueOf(LocalDateTime.now())).execute();
 
     var jobsData = new ArrayList<String>();
 

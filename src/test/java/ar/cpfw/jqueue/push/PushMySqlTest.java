@@ -16,9 +16,8 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 public class PushMySqlTest {
 
   @Container
-  private final JdbcDatabaseContainer<?> container =
-      new MySQLContainer<>(DockerImageName.parse("mysql/mysql-server:latest")
-          .asCompatibleSubstituteFor("mysql"));
+  private final JdbcDatabaseContainer<?> container = new MySQLContainer<>(
+      DockerImageName.parse("mysql:latest").asCompatibleSubstituteFor("mysql"));
 
   @BeforeEach
   public void setUp() throws SQLException {
