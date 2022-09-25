@@ -2,7 +2,7 @@ package ar.cpfw.jqueue.runner;
 
 class PostgreSqlQueryBuilder extends StandardQueryBuilder {
 
-  public PostgreSqlQueryBuilder(String tableName) {
+  public PostgreSqlQueryBuilder(final String tableName) {
     super(tableName);
   }
 

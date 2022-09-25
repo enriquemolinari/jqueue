@@ -24,12 +24,12 @@ public class RunnerPgTest {
           .asCompatibleSubstituteFor("postgres"));
 
   @BeforeEach
-  public void setUp() throws SQLException {
-    var ds = this.source();
+  void setUp() throws SQLException {
+    final var dataSource = this.source();
 
-    new JdbcSession(ds).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue").execute();
+    new JdbcSession(dataSource).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue").execute();
 
-    new JdbcSession(ds).sql("CREATE TABLE ar_cpfw_jqueue ( "
+    new JdbcSession(dataSource).sql("CREATE TABLE ar_cpfw_jqueue ( "
         + "id char(36) NOT NULL,  " + "channel varchar(100) NOT NULL, "
         + "data text NOT NULL, " + "attempt int, " + "delay int, "
         + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
@@ -37,22 +37,22 @@ public class RunnerPgTest {
   }
 
   @Test
-  public void runnerWorksWithOneJob() throws SQLException {
+  void runnerWorksWithOneJob() throws SQLException {
     new RunnerUseCases(source()).runnerWorksWithOneJob();
   }
 
   @Test
-  public void failJobIsNotExecutedYet() throws SQLException {
+  void failJobIsNotExecutedYet() throws SQLException {
     new RunnerUseCases(source()).failJobIsNotExecutedYet();
   }
 
   @Test
-  public void jobThatFailsIsPushedBack() throws SQLException {
+  void jobThatFailsIsPushedBack() throws SQLException {
     new RunnerUseCases(source()).jobThatFailsIsPushedBack();
   }
 
   @Test
-  public void runnerWorksWithTwoJobs() throws SQLException {
+  void runnerWorksWithTwoJobs() throws SQLException {
     new RunnerUseCases(source()).runnerWorksWithTwoJobs();
   }
 

@@ -21,12 +21,12 @@ public class PushPostgreSqlTest {
           .asCompatibleSubstituteFor("postgres"));
 
   @BeforeEach
-  public void setUp() throws SQLException {
-    var ds = this.pgDataSource();
+  void setUp() throws SQLException {
+    final var dataSource = this.pgDataSource();
 
-    new JdbcSession(ds).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue").execute();
+    new JdbcSession(dataSource).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue").execute();
 
-    new JdbcSession(ds).sql("CREATE TABLE ar_cpfw_jqueue ( "
+    new JdbcSession(dataSource).sql("CREATE TABLE ar_cpfw_jqueue ( "
         + "id char(36) NOT NULL,  " + "channel varchar(100) NOT NULL, "
         + "data text NOT NULL, " + "attempt int, " + "delay int, "
         + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
@@ -34,25 +34,25 @@ public class PushPostgreSqlTest {
   }
 
   @Test
-  public void pushIsRolledBackIfTxFails() throws SQLException {
+  void pushIsRolledBackIfTxFails() throws SQLException {
     new PushUseCases(pgDataSource()).pushIsRolledBackIfTxFails();
   }
 
   @Test
-  public void pushCanBeDoneBySpecifyingAChannel() throws SQLException {
+  void pushCanBeDoneBySpecifyingAChannel() throws SQLException {
     new PushUseCases(pgDataSource()).pushCanBeDoneBySpecifyingAChannel();
   }
 
   @Test
-  public void pushCanBeDoneInDefaultChannel() throws SQLException {
+  void pushCanBeDoneInDefaultChannel() throws SQLException {
     new PushUseCases(pgDataSource()).pushCanBeDoneInDefaultChannel();
   }
 
   private DataSource pgDataSource() {
-    final PGSimpleDataSource src = new PGSimpleDataSource();
-    src.setUrl(this.container.getJdbcUrl());
-    src.setUser(this.container.getUsername());
-    src.setPassword(this.container.getPassword());
-    return src;
+    final PGSimpleDataSource dataSource = new PGSimpleDataSource();
+    dataSource.setUrl(this.container.getJdbcUrl());
+    dataSource.setUser(this.container.getUsername());
+    dataSource.setPassword(this.container.getPassword());
+    return dataSource;
   }
 }

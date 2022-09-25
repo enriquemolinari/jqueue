@@ -14,7 +14,7 @@ public class PushUseCases {
 
   private DataSource dataSource;
 
-  public PushUseCases(DataSource dataSource) {
+  public PushUseCases(final DataSource dataSource) {
     this.dataSource = dataSource;
   }
 
@@ -27,11 +27,11 @@ public class PushUseCases {
         .execute().sql("CREATE TABLE if not exists test (name VARCHAR(50))")
         .execute().commit();
 
-    var conn = this.dataSource.getConnection();
+    final var conn = this.dataSource.getConnection();
     try {
       conn.setAutoCommit(false);
 
-      var queue = JTxQueue.queue(conn);
+      final var queue = JTxQueue.queue(conn);
       queue.push("Hola Mundo!");
 
       // by purpuse I use a table that doesn't exists to make the Tx to fail
@@ -48,7 +48,7 @@ public class PushUseCases {
       conn.close();
     }
 
-    int totalRows = new JdbcSession(this.dataSource)
+    final int totalRows = new JdbcSession(this.dataSource)
         .sql("select count(*) from ar_cpfw_jqueue")
         .select(new Outcome<Integer>() {
           @Override
@@ -79,7 +79,7 @@ public class PushUseCases {
       conn.close();
     }
 
-    int totalRows = new JdbcSession(this.dataSource)
+    final int totalRows = new JdbcSession(this.dataSource)
         .sql("select count(*) from ar_cpfw_jqueue")
         .select(new Outcome<Integer>() {
           @Override
@@ -129,7 +129,7 @@ public class PushUseCases {
       conn.close();
     }
 
-    int totalRows = new JdbcSession(this.dataSource)
+    final int totalRows = new JdbcSession(this.dataSource)
         .sql("select count(*) from ar_cpfw_jqueue")
         .select(new Outcome<Integer>() {
           @Override

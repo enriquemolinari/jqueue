@@ -13,17 +13,21 @@ import ar.cpfw.jqueue.JQueueException;
 
 class JdbcJQueue implements JTxQueue {
 
-  private static final String DATA_SOURCE_IS_NECESARY =
+  private static final int PUSHEDAT_COLUMN = 4;
+  private static final int DATA_COLUMN = 3;
+  private static final int CHANNEL_COLUMN = 2;
+  private static final int PK_COLUMN = 1;
+  private static final String DS_IS_NECESARY =
       "An instance of javax.sql.DataSource is necesary";
   private Connection conn;
   private String channel;
   private static final String DEFAULT_CHANNEL = "default";
   private static final String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
-  private final String tableName;
+  private final String databaseTableName;
 
-  public JdbcJQueue(final DataSource dataSource, String tableName) {
-    Objects.requireNonNull(dataSource, DATA_SOURCE_IS_NECESARY);
-    this.tableName = tableName;
+  public JdbcJQueue(final DataSource dataSource, final String tableName) {
+    Objects.requireNonNull(dataSource, DS_IS_NECESARY);
+    this.databaseTableName = tableName;
     try {
       this.conn = dataSource.getConnection();
     } catch (SQLException e) {
@@ -32,11 +36,11 @@ class JdbcJQueue implements JTxQueue {
     }
   }
 
-  public JdbcJQueue(final Connection conn, String tableName) {
-    Objects.requireNonNull(conn, DATA_SOURCE_IS_NECESARY);
+  public JdbcJQueue(final Connection conn, final String tableName) {
+    Objects.requireNonNull(conn, DS_IS_NECESARY);
 
     this.conn = conn;
-    this.tableName = tableName;
+    this.databaseTableName = tableName;
   }
 
   @Override
@@ -44,19 +48,19 @@ class JdbcJQueue implements JTxQueue {
     Objects.requireNonNull(data, "data must not be null");
 
     final var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
-    final var table =
-        this.tableName != null ? this.tableName : QUEUE_TABLE_NAME;
+    final var table = this.databaseTableName != null ? this.databaseTableName
+        : QUEUE_TABLE_NAME;
 
     try {
       PreparedStatement st = this.conn.prepareStatement("insert into " + table
           + " (id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)");
 
-      UUID uuid = Generators.timeBasedGenerator().generate();
+      final UUID uuid = Generators.timeBasedGenerator().generate();
 
-      st.setString(1, uuid.toString());
-      st.setString(2, channel);
-      st.setString(3, data);
-      st.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+      st.setString(PK_COLUMN, uuid.toString());
+      st.setString(CHANNEL_COLUMN, channel);
+      st.setString(DATA_COLUMN, data);
+      st.setTimestamp(PUSHEDAT_COLUMN, Timestamp.valueOf(LocalDateTime.now()));
       st.executeUpdate();
 
     } catch (Exception e) {
@@ -65,7 +69,7 @@ class JdbcJQueue implements JTxQueue {
   }
 
   @Override
-  public JTxQueue channel(String channelName) {
+  public JTxQueue channel(final String channelName) {
     this.channel = channelName;
     return this;
   }

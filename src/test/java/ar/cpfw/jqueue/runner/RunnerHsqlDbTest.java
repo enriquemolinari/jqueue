@@ -10,12 +10,12 @@ import com.jcabi.jdbc.JdbcSession;
 public class RunnerHsqlDbTest {
 
   @BeforeEach
-  public void setUp() throws SQLException {
-    var ds = hSqlDataSource();
+  void setUp() throws SQLException {
+    final var dataSource = hSqlDataSource();
 
-    new JdbcSession(ds).sql("DROP SCHEMA PUBLIC CASCADE").execute();
+    new JdbcSession(dataSource).sql("DROP SCHEMA PUBLIC CASCADE").execute();
 
-    new JdbcSession(ds).sql("CREATE TABLE ar_cpfw_jqueue ( "
+    new JdbcSession(dataSource).sql("CREATE TABLE ar_cpfw_jqueue ( "
         + "id char(36) NOT NULL,  " + "channel varchar(100) NOT NULL, "
         + "data text NOT NULL, " + "attempt int, " + "delay int, "
         + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
@@ -23,30 +23,30 @@ public class RunnerHsqlDbTest {
   }
 
   @Test
-  public void runnerWorksWithOneJob() throws SQLException {
+  void runnerWorksWithOneJob() throws SQLException {
     new RunnerUseCases(hSqlDataSource()).runnerWorksWithOneJob();
   }
 
   @Test
-  public void failJobIsNotExecutedYet() throws SQLException {
+  void failJobIsNotExecutedYet() throws SQLException {
     new RunnerUseCases(hSqlDataSource()).failJobIsNotExecutedYet();
   }
 
   @Test
-  public void jobThatFailsIsPushedBack() throws SQLException {
+  void jobThatFailsIsPushedBack() throws SQLException {
     new RunnerUseCases(hSqlDataSource()).jobThatFailsIsPushedBack();
   }
 
   @Test
-  public void runnerWorksWithTwoJobs() throws SQLException {
+  void runnerWorksWithTwoJobs() throws SQLException {
     new RunnerUseCases(hSqlDataSource()).runnerWorksWithTwoJobs();
   }
 
   private DataSource hSqlDataSource() {
-    final var ds = new JDBCDataSource();
-    ds.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
-    ds.setUser("SA");
-    ds.setPassword("");
-    return ds;
+    final var dataSource = new JDBCDataSource();
+    dataSource.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
+    dataSource.setUser("SA");
+    dataSource.setPassword("");
+    return dataSource;
   }
 }

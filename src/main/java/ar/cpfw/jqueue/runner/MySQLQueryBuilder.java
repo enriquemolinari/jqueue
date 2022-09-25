@@ -2,7 +2,7 @@ package ar.cpfw.jqueue.runner;
 
 class MySQLQueryBuilder extends StandardQueryBuilder {
 
-  public MySQLQueryBuilder(String tableName) {
+  public MySQLQueryBuilder(final String tableName) {
     super(tableName);
   }
 

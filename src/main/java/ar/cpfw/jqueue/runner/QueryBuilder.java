@@ -6,9 +6,9 @@ import java.util.Map;
 import ar.cpfw.jqueue.JQueueException;
 
 interface QueryBuilder {
-  static final String POSTGRE_SQL = "PostgreSQL";
-  static final String MY_SQL = "MySQL";
-  static final String HSQLDB = "HSQL Database Engine";
+  String POSTGRE_SQL = "PostgreSQL";
+  String MY_SQL = "MySQL";
+  String HSQLDB = "HSQL Database Engine";
 
   String readQuery();
 

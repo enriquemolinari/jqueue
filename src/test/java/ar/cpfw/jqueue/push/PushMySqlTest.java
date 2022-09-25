@@ -21,11 +21,11 @@ public class PushMySqlTest {
 
   @BeforeEach
   public void setUp() throws SQLException {
-    var ds = this.mySqlDataSource();
+    final var dataSource = this.mySqlDataSource();
 
-    new JdbcSession(ds).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue").execute();
+    new JdbcSession(dataSource).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue").execute();
 
-    new JdbcSession(ds).sql("CREATE TABLE ar_cpfw_jqueue ( "
+    new JdbcSession(dataSource).sql("CREATE TABLE ar_cpfw_jqueue ( "
         + "id char(36) NOT NULL,  " + "channel varchar(100) NOT NULL, "
         + "data text NOT NULL, " + "attempt int, " + "delay int, "
         + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
@@ -33,26 +33,26 @@ public class PushMySqlTest {
   }
 
   @Test
-  public void pushIsRolledBackIfTxFails() throws SQLException {
+  void pushIsRolledBackIfTxFails() throws SQLException {
     new PushUseCases(mySqlDataSource()).pushIsRolledBackIfTxFails();
   }
 
   @Test
-  public void pushCanBeDoneBySpecifyingAChannel() throws SQLException {
+  void pushCanBeDoneBySpecifyingAChannel() throws SQLException {
     new PushUseCases(mySqlDataSource()).pushCanBeDoneBySpecifyingAChannel();
   }
 
   @Test
-  public void pushCanBeDoneInDefaultChannel() throws SQLException {
+  void pushCanBeDoneInDefaultChannel() throws SQLException {
     new PushUseCases(mySqlDataSource()).pushCanBeDoneInDefaultChannel();
   }
 
 
   private DataSource mySqlDataSource() {
-    final MysqlDataSource src = new MysqlDataSource();
-    src.setUrl(this.container.getJdbcUrl());
-    src.setUser(this.container.getUsername());
-    src.setPassword(this.container.getPassword());
-    return src;
+    final MysqlDataSource dataSource = new MysqlDataSource();
+    dataSource.setUrl(this.container.getJdbcUrl());
+    dataSource.setUser(this.container.getUsername());
+    dataSource.setPassword(this.container.getPassword());
+    return dataSource;
   }
 }

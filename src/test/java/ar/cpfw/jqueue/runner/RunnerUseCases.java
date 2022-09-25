@@ -16,9 +16,10 @@ import com.jcabi.jdbc.Outcome;
 
 public class RunnerUseCases {
 
+  private static final String JOB_FAILED = "something went wrong with the job...";
   private DataSource dataSource;
 
-  public RunnerUseCases(DataSource dataSource) {
+  public RunnerUseCases(final DataSource dataSource) {
     this.dataSource = dataSource;
   }
 
@@ -29,15 +30,15 @@ public class RunnerUseCases {
         .set("default").set("Hello World")
         .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(1))).execute();
 
-    var runner = JQueueRunner.runner(this.dataSource);
+    final var runner = JQueueRunner.runner(this.dataSource);
     runner.executeAll(new Job() {
       @Override
       public void run(String data) {
-        assertEquals("Hello World", data);
+        assertEquals("job data does not match", "Hello World", data);
       }
     });
 
-    int totalRows = new JdbcSession(this.dataSource)
+    final int totalRows = new JdbcSession(this.dataSource)
         .sql("select count(*) from ar_cpfw_jqueue")
         .select(new Outcome<Integer>() {
           @Override
@@ -61,7 +62,7 @@ public class RunnerUseCases {
     runner.executeAll(new Job() {
       @Override
       public void run(String data) {
-        throw new RuntimeException("something went wrong with the job...");
+        throw new RuntimeException(JOB_FAILED);
       }
     });
 
@@ -73,7 +74,7 @@ public class RunnerUseCases {
       }
     });
 
-    int totalRows = new JdbcSession(this.dataSource)
+    final int totalRows = new JdbcSession(this.dataSource)
         .sql("select count(*) from ar_cpfw_jqueue")
         .select(new Outcome<Integer>() {
           @Override
@@ -98,7 +99,7 @@ public class RunnerUseCases {
     runner.executeAll(new Job() {
       @Override
       public void run(String data) {
-        throw new RuntimeException("something went wrong with the job...");
+        throw new RuntimeException(JOB_FAILED);
       }
     });
 
@@ -116,10 +117,10 @@ public class RunnerUseCases {
           }
         });
 
-    assertEquals("default", outcome.get("channel"));
-    assertEquals("wrongJob", outcome.get("data"));
-    assertEquals("1", outcome.get("attempt"));
-    assertEquals("5", outcome.get("delay"));
+    assertEquals("channel is not default", "default", outcome.get("channel"));
+    assertEquals("job data does not match", "wrongJob", outcome.get("data"));
+    assertEquals("attemps should be 1", "1", outcome.get("attempt"));
+    assertEquals("delay should be 5", "5", outcome.get("delay"));
   }
 
   public void runnerWorksWithTwoJobs() throws SQLException {
@@ -146,10 +147,10 @@ public class RunnerUseCases {
     });
 
     assertEquals(2, jobsData.size());
-    assertEquals("FirstJob", jobsData.get(0));
-    assertEquals("SecondJob", jobsData.get(1));
+    assertEquals("job data does not match", "FirstJob", jobsData.get(0));
+    assertEquals("job data does not match", "SecondJob", jobsData.get(1));
 
-    int totalRows = new JdbcSession(this.dataSource)
+    final int totalRows = new JdbcSession(this.dataSource)
         .sql("select count(*) from ar_cpfw_jqueue")
         .select(new Outcome<Integer>() {
           @Override
@@ -161,7 +162,5 @@ public class RunnerUseCases {
         });
 
     assertEquals(0, totalRows);
-
   }
-
 }

@@ -15,33 +15,33 @@ import com.jcabi.jdbc.Outcome;
 public class PushHsqlDbTest {
 
   @BeforeEach
-  public void setUp() throws SQLException {
-    var ds = new JDBCDataSource();
-    ds.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
-    ds.setUser("SA");
-    ds.setPassword("");
+  void setUp() throws SQLException {
+    var dataSource = new JDBCDataSource();
+    dataSource.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
+    dataSource.setUser("SA");
+    dataSource.setPassword("");
 
-    new JdbcSession(ds).sql("DROP SCHEMA PUBLIC CASCADE").execute();
+    new JdbcSession(dataSource).sql("DROP SCHEMA PUBLIC CASCADE").execute();
   }
 
   @Test
-  public void pushIsRolledBackIfTxFails() throws SQLException {
+  void pushIsRolledBackIfTxFails() throws SQLException {
     new PushUseCases(hSqlDataSource()).pushIsRolledBackIfTxFails();
   }
 
   @Test
-  public void pushCanBeDoneBySpecifyingAChannel() throws SQLException {
+  void pushCanBeDoneBySpecifyingAChannel() throws SQLException {
     new PushUseCases(hSqlDataSource()).pushCanBeDoneBySpecifyingAChannel();
   }
 
   @Test
-  public void pushCanBeDoneInDefaultChannel() throws SQLException {
+  void pushCanBeDoneInDefaultChannel() throws SQLException {
     new PushUseCases(hSqlDataSource()).pushCanBeDoneInDefaultChannel();
   }
 
   @Test
-  public void pushWorksWithTableName() throws SQLException {
-    var ds = hSqlDataSource();
+  void pushWorksWithTableName() throws SQLException {
+    final var ds = hSqlDataSource();
     new JdbcSession(ds)
         .sql("CREATE TABLE if not exists schema1jqueuetable ( "
             + "id char(36) NOT NULL,  " + "channel varchar(100) NOT NULL, "
@@ -49,9 +49,9 @@ public class PushHsqlDbTest {
             + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
         .execute();
 
-    var conn = ds.getConnection();
+    final var conn = ds.getConnection();
     try {
-      var queue = JTxQueue.queue(conn, "schema1jqueuetable");
+      final var queue = JTxQueue.queue(conn, "schema1jqueuetable");
       queue.channel("anotherChannel").push("Hola Mundo!");
 
     } finally {
@@ -92,7 +92,7 @@ public class PushHsqlDbTest {
   }
 
   @Test
-  public void pushWorksWithTableNameAndDataSource() throws SQLException {
+  void pushWorksWithTableNameAndDataSource() throws SQLException {
     var ds = hSqlDataSource();
     new JdbcSession(ds)
         .sql("CREATE TABLE if not exists schema1jqueuetable ( "
@@ -143,10 +143,10 @@ public class PushHsqlDbTest {
   }
 
   private DataSource hSqlDataSource() {
-    final var ds = new JDBCDataSource();
-    ds.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
-    ds.setUser("SA");
-    ds.setPassword("");
-    return ds;
+    final var dataSource = new JDBCDataSource();
+    dataSource.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
+    dataSource.setUser("SA");
+    dataSource.setPassword("");
+    return dataSource;
   }
 }
