@@ -39,7 +39,7 @@ runner.executeAll(new Job() {
 });
 ```
 
-Your jobs must implement the `Job` interface.
+Your jobs must implement the `Job` interface. You can use any job scheduling library to check and execute JQueue entries.
 
 ## Requirements
 
