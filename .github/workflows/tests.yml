@@ -1,7 +1,7 @@
 # This is a basic workflow to help you get started with Actions
 # https://stackoverflow.com/questions/4297014/what-are-the-differences-between-pmd-and-findbugs
 
-name: Tests
+name: CI
 
 # Controls when the workflow will run
 on:
