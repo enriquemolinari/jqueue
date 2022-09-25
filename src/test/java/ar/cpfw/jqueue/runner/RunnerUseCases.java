@@ -27,7 +27,7 @@ public class RunnerUseCases {
         + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
         .set(Generators.timeBasedGenerator().generate().toString())
         .set("default").set("Hello World")
-        .set(Timestamp.valueOf(LocalDateTime.now())).execute();
+        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(1))).execute();
 
     var runner = JQueueRunner.runner(this.dataSource);
     runner.executeAll(new Job() {
@@ -127,13 +127,13 @@ public class RunnerUseCases {
         + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
         .set(Generators.timeBasedGenerator().generate().toString())
         .set("default").set("FirstJob")
-        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(2))).execute();
+        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(3))).execute();
 
     new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue"
         + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
         .set(Generators.timeBasedGenerator().generate().toString())
         .set("default").set("SecondJob")
-        .set(Timestamp.valueOf(LocalDateTime.now())).execute();
+        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(1))).execute();
 
     var jobsData = new ArrayList<String>();
 
