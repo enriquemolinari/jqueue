@@ -47,7 +47,7 @@ class JdbcJQueue implements JTxQueue {
   public void push(final String data) {
     Objects.requireNonNull(data, "data must not be null");
 
-    final var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
+    final var channelName = this.channel != null ? this.channel : DEFAULT_CHANNEL;
     final var table = this.databaseTableName != null ? this.databaseTableName
         : QUEUE_TABLE_NAME;
 
@@ -60,7 +60,7 @@ class JdbcJQueue implements JTxQueue {
       final UUID uuid = Generators.timeBasedGenerator().generate();
 
       st.setString(PK_COLUMN, uuid.toString());
-      st.setString(CHANNEL_COLUMN, channel);
+      st.setString(CHANNEL_COLUMN, channelName);
       st.setString(DATA_COLUMN, data);
       st.setTimestamp(PUSHEDAT_COLUMN, Timestamp.valueOf(LocalDateTime.now()));
       st.executeUpdate();

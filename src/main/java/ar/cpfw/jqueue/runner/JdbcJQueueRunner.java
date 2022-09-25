@@ -12,6 +12,10 @@ import ar.cpfw.jqueue.JQueueException;
 
 class JdbcJQueueRunner implements JQueueRunner {
 
+  private static final int FIVE_MINUTES = 5;
+  private static final int ATTEMPT_COLUMN = 3;
+  private static final int DATA_COLUMN = 2;
+  private static final int PK_COLUMN = 1;
   private DataSource dataSource;
   private String channel;
   private static final String DEFAULT_CHANNEL = "default";
@@ -19,9 +23,9 @@ class JdbcJQueueRunner implements JQueueRunner {
   private static final String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
 
 
-  public JdbcJQueueRunner(DataSource dataSource, String tableName) {
-    Objects.requireNonNull(dataSource, "dataSource must not be null");
-    this.dataSource = dataSource;
+  public JdbcJQueueRunner(final DataSource source, final String tableName) {
+    Objects.requireNonNull(source, "dataSource must not be null");
+    this.dataSource = source;
     this.tableName = tableName;
   }
 
@@ -35,25 +39,25 @@ class JdbcJQueueRunner implements JQueueRunner {
   }
 
   private void doExectute(final Job job) throws Exception {
-    var channel = this.channel != null ? this.channel : DEFAULT_CHANNEL;
-    var table = this.tableName != null ? this.tableName : QUEUE_TABLE_NAME;
-    var conn = this.dataSource.getConnection();
-    var queryBuilder = QueryBuilder.build(conn, table);
-
-    String jobId = null;
-    int currentAttempt = 0;
+    final var channelName =
+        this.channel != null ? this.channel : DEFAULT_CHANNEL;
+    final var table =
+        this.tableName != null ? this.tableName : QUEUE_TABLE_NAME;
+    final var conn = this.dataSource.getConnection();
+    final var queryBuilder = QueryBuilder.build(conn, table);
 
     try {
       conn.setAutoCommit(false);
 
       while (true) {
-        final ResultSet resultSet = readNextJob(channel, conn, queryBuilder);
+        final ResultSet resultSet =
+            readNextJob(channelName, conn, queryBuilder);
         if (!resultSet.next()) {
           break;
         }
-        jobId = resultSet.getString(1);
-        String jobData = resultSet.getString(2);
-        currentAttempt = resultSet.getInt(3);
+        final String jobId = resultSet.getString(PK_COLUMN);
+        final String jobData = resultSet.getString(DATA_COLUMN);
+        final int currentAttempt = resultSet.getInt(ATTEMPT_COLUMN);
         try {
           job.run(jobData);
           deleteExecutedJob(conn, jobId, queryBuilder);
@@ -77,10 +81,10 @@ class JdbcJQueueRunner implements JQueueRunner {
   private void pushBackFailedJob(final Connection conn, final String jobId,
       final int currentAttempt, final QueryBuilder queryBuilder)
       throws SQLException {
-    PreparedStatement st =
+    final PreparedStatement st =
         conn.prepareStatement(queryBuilder.updateQueryOnFail());
     st.setInt(1, currentAttempt + 1);
-    st.setInt(2, 5 * (currentAttempt + 1)); // minutes
+    st.setInt(2, FIVE_MINUTES * (currentAttempt + 1));
     st.setString(3, jobId);
     st.executeUpdate();
     st.close();
@@ -88,23 +92,23 @@ class JdbcJQueueRunner implements JQueueRunner {
 
   private void deleteExecutedJob(final Connection conn, final String jobId,
       final QueryBuilder queryBuilder) throws SQLException {
-    PreparedStatement st =
+    final PreparedStatement st =
         conn.prepareStatement(queryBuilder.deleteQueryOnSuccess());
     st.setString(1, jobId);
     st.executeUpdate();
     st.close();
   }
 
-  private ResultSet readNextJob(String channel, Connection conn,
-      QueryBuilder queryBuilder) throws SQLException {
-    PreparedStatement st = conn.prepareStatement(queryBuilder.readQuery());
+  private ResultSet readNextJob(final String channel, final Connection conn,
+      final QueryBuilder queryBuilder) throws SQLException {
+    final PreparedStatement st =
+        conn.prepareStatement(queryBuilder.readQuery());
 
-    var time = Timestamp.valueOf(LocalDateTime.now());
+    final var time = Timestamp.valueOf(LocalDateTime.now());
     st.setString(1, channel);
     st.setTimestamp(2, time);
 
-    ResultSet resultSet = st.executeQuery();
-    return resultSet;
+    return st.executeQuery();
   }
 
   @Override

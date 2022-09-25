@@ -2,7 +2,7 @@ package ar.cpfw.jqueue.runner;
 
 class HsqlDbQueryBuilder extends StandardQueryBuilder {
 
-  public HsqlDbQueryBuilder(String tableName) {
+  public HsqlDbQueryBuilder(final String tableName) {
     super(tableName);
   }
 
