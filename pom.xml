@@ -2,7 +2,20 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ar.cpfw</groupId>
 	<artifactId>jqueue</artifactId>
-	<version>0.1</version>
+	<version>0.0.1</version>
+	<packaging>jar</packaging>
+
+	<name>JQueue</name>
+	<description>An extremely simple Java Queue implemented by using a relational database table.</description>
+	<url>https://github.com/enriquemolinari/jqueue</url>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

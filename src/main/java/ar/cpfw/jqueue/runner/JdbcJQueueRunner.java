@@ -12,6 +12,7 @@ import ar.cpfw.jqueue.JQueueException;
 
 class JdbcJQueueRunner implements JQueueRunner {
 
+  private static final int JOBID_COLUMN = 3;
   private static final int FIVE_MINUTES = 5;
   private static final int ATTEMPT_COLUMN = 3;
   private static final int DATA_COLUMN = 2;
@@ -23,10 +24,10 @@ class JdbcJQueueRunner implements JQueueRunner {
   private static final String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
 
 
-  public JdbcJQueueRunner(final DataSource source, final String tableName) {
+  public JdbcJQueueRunner(final DataSource source, final String table) {
     Objects.requireNonNull(source, "dataSource must not be null");
     this.dataSource = source;
-    this.tableName = tableName;
+    this.tableName = table;
   }
 
   @Override
@@ -61,7 +62,7 @@ class JdbcJQueueRunner implements JQueueRunner {
         try {
           job.run(jobData);
           deleteExecutedJob(conn, jobId, queryBuilder);
-        } catch (Exception w) {
+        } catch (Exception exception) {
           if (jobId != null) {
             pushBackFailedJob(conn, jobId, currentAttempt, queryBuilder);
           }
@@ -85,7 +86,7 @@ class JdbcJQueueRunner implements JQueueRunner {
         conn.prepareStatement(queryBuilder.updateQueryOnFail());
     st.setInt(1, currentAttempt + 1);
     st.setInt(2, FIVE_MINUTES * (currentAttempt + 1));
-    st.setString(3, jobId);
+    st.setString(JOBID_COLUMN, jobId);
     st.executeUpdate();
     st.close();
   }
@@ -99,13 +100,13 @@ class JdbcJQueueRunner implements JQueueRunner {
     st.close();
   }
 
-  private ResultSet readNextJob(final String channel, final Connection conn,
+  private ResultSet readNextJob(final String channelName, final Connection conn,
       final QueryBuilder queryBuilder) throws SQLException {
     final PreparedStatement st =
         conn.prepareStatement(queryBuilder.readQuery());
 
     final var time = Timestamp.valueOf(LocalDateTime.now());
-    st.setString(1, channel);
+    st.setString(1, channelName);
     st.setTimestamp(2, time);
 
     return st.executeQuery();
