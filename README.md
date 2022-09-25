@@ -39,7 +39,7 @@ runner.executeAll(new Job() {
 });
 ```
 
-Your jobs must implement the ´Job´ interface.
+Your jobs must implement the `Job` interface.
 
 ## Requirements
 
