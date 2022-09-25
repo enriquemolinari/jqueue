@@ -6,7 +6,7 @@
 
 In a Microservices / Event Based architecture it is a common pattern to make changes to the vertical data store plus publishing an event to be consumed by other verticals. That must be done in a consistent way, wrapping both operations in a Tx. By using JQueue, if your verical’s data store uses a relational database, you are able to wrap both operations in a transaction. Then, another process might pull the events from the JQueue and publish them to RabbitMQ, Kafka or other systems like them. This is known as Outbox Pattern. 
 
-This library was inspired by the [Yii2 Queue](https://github.com/yiisoft/yii2-queue/).
+JQueue was inspired by the beautiful and simple Yii2/php library called [Yii2 Queue](https://github.com/yiisoft/yii2-queue/).
 
 ## How to use it ?
 
