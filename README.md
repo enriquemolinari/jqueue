@@ -6,32 +6,24 @@
 
 In a Microservices / Event Based architecture it is a common pattern to make changes to the vertical data store plus publishing an event to be consumed by other verticals. That must be done in a consistent way, wrapping both operations in a Tx. By using JQueue, if your verical’s data store uses a relational database, you are able to wrap both operations in a transaction. Then, another process might pull the events from the JQueue and publish them to RabbitMQ, Kafka or other systems like them. This is known as Outbox Pattern. 
 
+This library was inspired by the [Yii2 Queue](https://github.com/yiisoft/yii2-queue/).
+
 ## How to use it ?
 
 To push something on the default channel of the queue you can do this:
 
 ```java
 var jqueue = JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */);
-jqueue.push({
-   "type": "job_type1",
-   "event":{
-      "id": "an id",
-      "value": ""
-   }
-});
+jqueue.push(
+   "{\"type\": \"job_type1\", \"event\":{\"id\": \"an id\", \"value\": \"\" }}");
 ```
 
 To push something on an specific channel of the queue you can do this:
 
 ```java
 var jqueue = JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */);
-jqueue.channel("achannel").push({
-   "type": "job_type1",
-   "event":{
-      "id": "an id",
-      "value": ""
-   }
-});
+jqueue.channel("achannel").push(
+   "{\"type\": \"job_type1\", \"event\":{\"id\": \"an id\", \"value\": \"\" }}");
 ```
 
 The following snippet executes all the entries in the queue in a loop until is empty:
@@ -51,7 +43,9 @@ Your jobs must implement the ´Job´ interface.
 
 ## Requirements
 
-JQueue currently supports PostgreSQL 9.5+ and MySQL 8.0+. To work properly, it uses the `select for update skip locked` which is a feature that some relational databases have incorporated few years ago. This feature eliminates any type of contention that might occure when Queue are implemented using SQL.
+JQueue currently supports PostgreSQL 9.5+ and MySQL 8.0+. To work properly, it uses the `select for update skip locked` which is a feature that some relational databases have incorporated few years ago. This feature eliminates any type of contention that might occure when queues are implemented using SQL.
+
+JQueue requires the following table in your data store:
 
 ```sql
 CREATE TABLE ar_cpfw_jqueue
@@ -68,4 +62,4 @@ CREATE TABLE ar_cpfw_jqueue
 CREATE INDEX channel ON ar_cpfw_jqueue (channel); 
 ```
 
-The name of the table ´ar_cpfw_jqueue´ can be any other of your choice. Then use the correct factory method (´´´JQueueRunner.runner´´´ and ´´´JTxQueue.queue´´´) to pass the name of the table you have chosen and created.  
+The name of the table `ar_cpfw_jqueue` can be any other of your choice. Then use the correct factory method (`JQueueRunner.runner` and `JTxQueue.queue`) to pass the name of the table you have chosen and created.  
