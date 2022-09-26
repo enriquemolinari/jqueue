@@ -13,30 +13,29 @@ JQueue was inspired by the beautiful and simple Yii2/php library called [Yii2 Qu
 To push something on the default channel of the queue you can do this:
 
 ```java
-var jqueue = JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */);
-jqueue.push(
+JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */)
+ .push(
    "{\"type\": \"job_type1\", \"event\":{\"id\": \"an id\", \"value\": \"\" }}");
 ```
 
 To push something on an specific channel of the queue you can do this:
 
 ```java
-var jqueue = JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */);
-jqueue.channel("achannel").push(
+JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */)
+ .channel("achannel").push(
    "{\"type\": \"job_type1\", \"event\":{\"id\": \"an id\", \"value\": \"\" }}");
 ```
 
 The following snippet executes all the entries in the queue in a loop until is empty:
 
 ```java
-var runner = JQueueRunner.runner(/* a JDBC DataSource */);
-
-runner.executeAll(new Job() {
-  @Override
-  public void run(String data) {
-	//do something with data
-  }
-});
+JQueueRunner.runner(/* a JDBC DataSource */)
+ .executeAll(new Job() {
+   @Override
+   public void run(String data) {
+	 //do something with data
+   }
+ });
 ```
 
 Your jobs must implement the `Job` interface. You can use any job scheduling library to check and execute JQueue entries.
