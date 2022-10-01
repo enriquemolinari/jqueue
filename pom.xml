@@ -17,6 +17,21 @@
 		</license>
 	</licenses>
 
+	<developers>
+		<developer>
+			<name>Enrique Molinari</name>
+			<email>enrique.molinari@gmail.com</email>
+			<organization>copypasteisforword</organization>
+			<organizationUrl>https://www.copypasteisforword.com/</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com:enriquemolinari/jqueue.git</connection>
+		<developerConnection>scm:git:ssh://github.com:enriquemolinari/jqueue.git</developerConnection>
+		<url>https://github.com/enriquemolinari/jqueue</url>
+	</scm>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
