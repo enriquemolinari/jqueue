@@ -37,6 +37,8 @@ JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */)
    "{\"type\": \"job_type1\", \"event\":{\"id\": \"an id\", \"value\": \"\" }}");
 ```
 
+Make sure that the `dataSource` or `connection` you pass as argument to the `queue` factory method above is the one you use to open the transaction which then later will be committed or rolledback.
+
 The following snippet executes all the entries in the queue in a loop until is empty:
 
 ```java
