@@ -4,11 +4,22 @@
 
 ## Why JQueue ?
 
-In a Microservices / Event Based architecture it is a common pattern to make changes to the vertical data store plus publishing an event to be consumed by other verticals. That must be done in a consistent way, wrapping both operations in a Tx. By using JQueue, if your verical’s data store uses a relational database, you are able to wrap both operations in a transaction. Then, another process might pull the events from the JQueue and publish them to RabbitMQ, Kafka or other systems like them. This is known as Outbox Pattern. 
+In Microservices / Event Based architectures it is usually required (common pattern) for each service to make changes to their own database and additionally publish an event that might be consumed by other services. That must be done in a consistent way, wrapping both operations in a Tx. One elegant way to solve this is by using the Outbox Pattern. JQueue helps to implement this. By using JQueue, if your service’s database uses a relational database, you are able to wrap both operations in a transaction. This is possible because the JQueue is implemented using a relational database table to store queue tasks. 
+
+JQueue also provides a way to obtain the tasks from the queue and for instance to re-publishing them to RabbitMQ/Kafka or just doing any other talk with other external services like sending any type of notifications, integrating or replicating data to other databases (like NoSQL), etc.
 
 JQueue was inspired by the beautiful and simple Yii2/php library called [Yii2 Queue](https://github.com/yiisoft/yii2-queue/).
 
+
 ## How to use it ?
+
+```xml
+<dependency>
+  <groupId>io.github.enriquemolinari</groupId>
+  <artifactId>jqueue</artifactId>
+  <version>0.0.1</version>
+</dependency>
+```
 
 To push something on the default channel of the queue you can do this:
 
