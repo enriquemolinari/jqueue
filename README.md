@@ -62,7 +62,8 @@ JQueue requires the following table in your data store:
 ```sql
 CREATE TABLE ar_cpfw_jqueue
 ( 
-  id char(36) NOT NULL,
+  id int NOT NULL auto_increment, --MySQL
+--  id serial,						  --PostgreSQL	
   channel varchar(100) NOT NULL,
   data text NOT NULL,
   attempt int,
