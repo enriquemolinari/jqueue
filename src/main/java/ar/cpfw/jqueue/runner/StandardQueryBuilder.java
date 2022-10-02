@@ -15,9 +15,6 @@ abstract class StandardQueryBuilder implements QueryBuilder {
   @Override
   public String readQuery() {
     // important: the "order by" must be by the PK if you want to lock only 1 row
-    // I'm using a timeBased UUID
-    // https://github.com/cowtowncoder/java-uuid-generator
-    // to make this work
     return "select id, data, attempt from " + this.tableName + ""
         + " where channel = ? and pushed_at <= " + calculateDate()
         + " order by id asc " + limitOne() + " " + lock();

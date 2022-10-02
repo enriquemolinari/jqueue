@@ -23,12 +23,14 @@ public class PushMySqlTest {
   public void setUp() throws SQLException {
     final var dataSource = this.mySqlDataSource();
 
-    new JdbcSession(dataSource).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue").execute();
+    new JdbcSession(dataSource).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue")
+        .execute();
 
-    new JdbcSession(dataSource).sql("CREATE TABLE ar_cpfw_jqueue ( "
-        + "id char(36) NOT NULL,  " + "channel varchar(100) NOT NULL, "
-        + "data text NOT NULL, " + "attempt int, " + "delay int, "
-        + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
+    new JdbcSession(dataSource).sql(
+        "CREATE TABLE ar_cpfw_jqueue ( " + "id int NOT NULL auto_increment,  "
+            + "channel varchar(100) NOT NULL, " + "data text NOT NULL, "
+            + "attempt int, " + "delay int, " + "pushed_at timestamp, "
+            + "CONSTRAINT id_pk PRIMARY KEY (id));")
         .execute();
   }
 

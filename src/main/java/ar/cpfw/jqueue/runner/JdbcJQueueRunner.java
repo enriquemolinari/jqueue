@@ -56,7 +56,7 @@ class JdbcJQueueRunner implements JQueueRunner {
         if (!resultSet.next()) {
           break;
         }
-        final String jobId = resultSet.getString(PK_COLUMN);
+        final Long jobId = resultSet.getLong(PK_COLUMN);
         final String jobData = resultSet.getString(DATA_COLUMN);
         final int currentAttempt = resultSet.getInt(ATTEMPT_COLUMN);
         try {
@@ -79,23 +79,23 @@ class JdbcJQueueRunner implements JQueueRunner {
     }
   }
 
-  private void pushBackFailedJob(final Connection conn, final String jobId,
+  private void pushBackFailedJob(final Connection conn, final Long jobId,
       final int currentAttempt, final QueryBuilder queryBuilder)
       throws SQLException {
     final PreparedStatement st =
         conn.prepareStatement(queryBuilder.updateQueryOnFail());
     st.setInt(1, currentAttempt + 1);
     st.setInt(2, FIVE_MINUTES * (currentAttempt + 1));
-    st.setString(JOBID_COLUMN, jobId);
+    st.setLong(JOBID_COLUMN, jobId);
     st.executeUpdate();
     st.close();
   }
 
-  private void deleteExecutedJob(final Connection conn, final String jobId,
+  private void deleteExecutedJob(final Connection conn, final Long jobId,
       final QueryBuilder queryBuilder) throws SQLException {
     final PreparedStatement st =
         conn.prepareStatement(queryBuilder.deleteQueryOnSuccess());
-    st.setString(1, jobId);
+    st.setLong(1, jobId);
     st.executeUpdate();
     st.close();
   }

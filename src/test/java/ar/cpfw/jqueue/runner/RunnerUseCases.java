@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 import javax.sql.DataSource;
-import com.fasterxml.uuid.Generators;
 import com.jcabi.jdbc.JdbcSession;
 import com.jcabi.jdbc.Outcome;
 
@@ -26,8 +25,7 @@ public class RunnerUseCases {
 
   public void runnerWorksWithOneJob() throws SQLException {
     new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
-        + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
-        .set(Generators.timeBasedGenerator().generate().toString())
+        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
         .set("default").set("Hello World")
         .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(1))).execute();
 
@@ -54,8 +52,7 @@ public class RunnerUseCases {
 
   public void failJobIsNotExecutedYet() throws SQLException {
     new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
-        + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
-        .set(Generators.timeBasedGenerator().generate().toString())
+        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
         .set("default").set("wrongJob")
         .set(Timestamp.valueOf(LocalDateTime.now())).execute();
 
@@ -91,8 +88,7 @@ public class RunnerUseCases {
 
   public void jobThatFailsIsPushedBack() throws SQLException {
     new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
-        + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
-        .set(Generators.timeBasedGenerator().generate().toString())
+        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
         .set("default").set("wrongJob")
         .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(2))).execute();
 
@@ -126,14 +122,12 @@ public class RunnerUseCases {
 
   public void runnerWorksWithTwoJobs() throws SQLException {
     new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
-        + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
-        .set(Generators.timeBasedGenerator().generate().toString())
+        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
         .set("default").set("FirstJob")
         .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(3))).execute();
 
     new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue"
-        + "(id, channel, data, attempt, delay, pushed_at) values (?, ?, ?, null, 0, ?)")
-        .set(Generators.timeBasedGenerator().generate().toString())
+        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
         .set("default").set("SecondJob")
         .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(1))).execute();
 

@@ -20,12 +20,13 @@ public class PushUseCases {
 
   public void pushIsRolledBackIfTxFails() throws SQLException {
     new JdbcSession(this.dataSource).autocommit(false)
-        .sql("CREATE TABLE if not exists ar_cpfw_jqueue ( "
-            + "id char(36) NOT NULL,  " + "channel varchar(100) NOT NULL, "
-            + "data text NOT NULL, " + "attempt int, " + "delay int, "
-            + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
-        .execute().sql("CREATE TABLE if not exists test (name VARCHAR(50))")
-        .execute().commit();
+        // .sql("CREATE TABLE if not exists ar_cpfw_jqueue ( "
+        // + "id char(36) NOT NULL, " + "channel varchar(100) NOT NULL, "
+        // + "data text NOT NULL, " + "attempt int, " + "delay int, "
+        // + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
+        // .execute()
+        .sql("CREATE TABLE if not exists test (name VARCHAR(50))").execute()
+        .commit();
 
     final var conn = this.dataSource.getConnection();
     try {
@@ -63,12 +64,12 @@ public class PushUseCases {
   }
 
   public void pushCanBeDoneBySpecifyingAChannel() throws SQLException {
-    new JdbcSession(this.dataSource)
-        .sql("CREATE TABLE if not exists ar_cpfw_jqueue ( "
-            + "id char(36) NOT NULL,  " + "channel varchar(100) NOT NULL, "
-            + "data text NOT NULL, " + "attempt int, " + "delay int, "
-            + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
-        .execute();
+    // new JdbcSession(this.dataSource)
+    // .sql("CREATE TABLE if not exists ar_cpfw_jqueue ( "
+    // + "id char(36) NOT NULL, " + "channel varchar(100) NOT NULL, "
+    // + "data text NOT NULL, " + "attempt int, " + "delay int, "
+    // + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
+    // .execute();
 
     var conn = this.dataSource.getConnection();
     try {
@@ -113,12 +114,12 @@ public class PushUseCases {
   }
 
   public void pushCanBeDoneInDefaultChannel() throws SQLException {
-    new JdbcSession(this.dataSource)
-        .sql("CREATE TABLE if not exists ar_cpfw_jqueue ( "
-            + "id char(36) NOT NULL,  " + "channel varchar(100) NOT NULL, "
-            + "data text NOT NULL, " + "attempt int, " + "delay int, "
-            + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
-        .execute();
+    // new JdbcSession(this.dataSource)
+    // .sql("CREATE TABLE if not exists ar_cpfw_jqueue ( "
+    // + "id char(36) NOT NULL, " + "channel varchar(100) NOT NULL, "
+    // + "data text NOT NULL, " + "attempt int, " + "delay int, "
+    // + "pushed_at timestamp, " + "CONSTRAINT id_pk PRIMARY KEY (id));")
+    // .execute();
 
     var conn = this.dataSource.getConnection();
     try {
