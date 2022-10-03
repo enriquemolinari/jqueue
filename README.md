@@ -57,7 +57,7 @@ Your jobs must implement the `Job` interface. You can use any job scheduling lib
 
 ## Push Events Atomically (in a Tx)
 
-It is the essence of this library to push events atomically within your business logic. Here are some examples of how you can do it.
+It is the essence of this library to push events **atomically** within your business logic. Below, you will find some examples where first there is some code for the creation of a user entity (and that represent your business logic, the work you do in your application) and after that, **within the same Tx**, you will find the push of the `NewUserEvent`.
 
 ### Using Plain JDBC
 
