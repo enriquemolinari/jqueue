@@ -19,7 +19,7 @@ Add the dependency to your project:
 <dependency>
   <groupId>io.github.enriquemolinari</groupId>
   <artifactId>jqueue</artifactId>
-  <version>{latest}</version>
+  <version>0.0.2</version>
 </dependency>
 ```
 
@@ -61,6 +61,38 @@ It is the essence of this library to push events atomically within your business
 
 ### Using Plain JDBC
 
+```java
+Connection conn = connection();
+try {
+ conn.setAutoCommit(false);
+ 
+ //your business logic first
+ final PreparedStatement st = conn.prepareStatement(
+        "insert into user(id, user_name, pwd, email) values(108,  'user1','anyPassword','user1@dot.com')");
+ st.executeUpdate();
+
+ //then push an event
+ JTxQueue.queue(conn)
+     .push(new NewUserEvent(108, "user1", "user1@dot.com").toJson());
+
+ conn.commit();
+} catch (SQLException | JQueueException e) {
+ try {
+   conn.rollback();
+   throw new RuntimeException(e);
+ } catch (SQLException e1) {
+    throw new RuntimeException(e1);
+ }
+} finally {
+ try {
+   conn.setAutoCommit(true);
+   conn.close();
+ } catch (SQLException e) {
+   throw new RuntimeException(e);
+ }
+}
+```
+
 ### Using Plain JPA/Hibernate
 ```java
 EntityManagerFactory emf =
@@ -94,7 +126,32 @@ try {
 ```
 ### Using Spring
 
+```java
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
 
+  @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
+  private DataSource dataSource;
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  @Transactional
+  public User create(@RequestBody User user) throws SQLException {
+    //your business logic first
+    User u = userRepository.save(user);
+
+    //then push an event
+    JTxQueue.queue(dataSource)
+        .push(new NewUserEvent(u.id(), u.getUserName(), u.email()).toJson());
+
+    return u;
+  }
+}
+```
 ## Requirements
 
 JQueue currently supports PostgreSQL 9.5+ and MySQL 8.0+. To work properly, it uses the `select for update skip locked` which is a feature that some relational databases have incorporated few years ago. This feature eliminates any type of contention that might occure when queues are implemented using SQL.
