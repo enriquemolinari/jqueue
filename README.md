@@ -19,7 +19,7 @@ Add the dependency to your project:
 <dependency>
   <groupId>io.github.enriquemolinari</groupId>
   <artifactId>jqueue</artifactId>
-  <version>0.0.1</version>
+  <version>{latest}</version>
 </dependency>
 ```
 
@@ -62,37 +62,36 @@ It is the essence of this library to push events atomically within your business
 ### Using Plain JDBC
 
 ### Using Plain JPA/Hibernate
-
 ```java
 EntityManagerFactory emf =
 	Persistence.createEntityManagerFactory("...");
 EntityManager em = emf.createEntityManager();
 EntityTransaction tx = em.getTransaction();
 try {
-	tx.begin();
-	//your business logic first
-	User u = new User("username1", "pwd1", "user@dot.com");
-	em.persist(u);
-	
-	//Then push an event
-	Session session = em.unwrap(Session.class);
-	session.doWork(new Work() {
-		@Override
-      	public void execute(Connection connection) throws SQLException {
-        	JTxQueue.queue(connection)
-           	.push(new NewUserEvent(u.id(), u.userName(), u.email()).toJson());
-		}
-	});
-	tx.commit();
+ tx.begin();
+ //your business logic first
+ User u = new User("username1", "pwd1", "user@dot.com");
+ em.persist(u);
+ //Then push an event
+ Session session = em.unwrap(Session.class);
+ session.doWork(new Work() {
+  @Override
+  public void execute(Connection connection) throws SQLException {
+   JTxQueue.queue(connection)
+        .push(new NewUserEvent(u.id(), u.userName(), u.email()).toJson());
+  }
+ });
+ tx.commit();
 } catch (Exception e) {
-	tx.rollback();
-	throw new RuntimeException(e);
+ tx.rollback();
+ throw new RuntimeException(e);
 } finally {
-	if (em != null && em.isOpen())
-		em.close();
-	if (emf != null)
-		emf.close();
+ if (em != null && em.isOpen())
+  em.close();
+ if (emf != null)
+  emf.close();
 }
+```
 ### Using Spring
 
 
