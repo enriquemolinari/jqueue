@@ -13,6 +13,8 @@ JQueue was inspired by the beautiful and simple Yii2/php library called [Yii2 Qu
 
 ## How to use it ?
 
+Add the dependency to your project:
+
 ```xml
 <dependency>
   <groupId>io.github.enriquemolinari</groupId>
@@ -52,6 +54,47 @@ JQueueRunner.runner(/* a JDBC DataSource */)
 ```
 
 Your jobs must implement the `Job` interface. You can use any job scheduling library to check and execute JQueue entries.
+
+## Push Events Atomically (in a Tx)
+
+It is the essence of this library to push events atomically within your business logic. Here are some examples of how you can do it.
+
+### Using Plain JDBC
+
+### Using Plain JPA/Hibernate
+
+```java
+EntityManagerFactory emf =
+	Persistence.createEntityManagerFactory("...");
+EntityManager em = emf.createEntityManager();
+EntityTransaction tx = em.getTransaction();
+try {
+	tx.begin();
+	//your business logic first
+	User u = new User("username1", "pwd1", "user@dot.com");
+	em.persist(u);
+	
+	//Then push an event
+	Session session = em.unwrap(Session.class);
+	session.doWork(new Work() {
+		@Override
+      	public void execute(Connection connection) throws SQLException {
+        	JTxQueue.queue(connection)
+           	.push(new NewUserEvent(u.id(), u.userName(), u.email()).toJson());
+		}
+	});
+	tx.commit();
+} catch (Exception e) {
+	tx.rollback();
+	throw new RuntimeException(e);
+} finally {
+	if (em != null && em.isOpen())
+		em.close();
+	if (emf != null)
+		emf.close();
+}
+### Using Spring
+
 
 ## Requirements
 
