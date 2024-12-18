@@ -3,15 +3,15 @@ package ar.cpfw.jqueue.runner;
 import javax.sql.DataSource;
 
 public interface JQueueRunner {
-  void executeAll(Job job);
+    static JQueueRunner runner(DataSource dataSource, String tableName) {
+        return new JdbcJQueueRunner(dataSource, tableName);
+    }
 
-  JQueueRunner channel(String channelName);
+    static JQueueRunner runner(DataSource dataSource) {
+        return new JdbcJQueueRunner(dataSource, null);
+    }
 
-  static JQueueRunner runner(DataSource dataSource, String tableName) {
-    return new JdbcJQueueRunner(dataSource, tableName);
-  }
+    void executeAll(Job job);
 
-  static JQueueRunner runner(DataSource dataSource) {
-    return new JdbcJQueueRunner(dataSource, null);
-  }
+    JQueueRunner channel(String channelName);
 }

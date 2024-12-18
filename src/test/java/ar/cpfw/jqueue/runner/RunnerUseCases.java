@@ -1,161 +1,123 @@
 package ar.cpfw.jqueue.runner;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-import java.sql.ResultSet;
+import com.jcabi.jdbc.JdbcSession;
+
+import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
-import javax.sql.DataSource;
-import com.jcabi.jdbc.JdbcSession;
-import com.jcabi.jdbc.Outcome;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class RunnerUseCases {
 
-  private static final String JOB_FAILED =
-      "something went wrong with the job...";
-  private DataSource dataSource;
+    private static final String JOB_FAILED =
+            "something went wrong with the job...";
+    private final DataSource dataSource;
 
-  public RunnerUseCases(final DataSource dataSource) {
-    this.dataSource = dataSource;
-  }
+    public RunnerUseCases(final DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
-  public void runnerWorksWithOneJob() throws SQLException {
-    new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
-        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
-        .set("default").set("Hello World")
-        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(1))).execute();
+    public void runnerWorksWithOneJob() throws SQLException {
+        new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
+                        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
+                .set("default").set("Hello World")
+                .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(1))).execute();
 
-    final var runner = JQueueRunner.runner(this.dataSource);
-    runner.executeAll(new Job() {
-      @Override
-      public void run(String data) {
-        assertEquals("Hello World", data);
-      }
-    });
+        final var runner = JQueueRunner.runner(this.dataSource);
+        runner.executeAll(data -> assertEquals("Hello World", data));
 
-    final int totalRows = new JdbcSession(this.dataSource)
-        .sql("select count(*) from ar_cpfw_jqueue")
-        .select(new Outcome<Integer>() {
-          @Override
-          public Integer handle(final ResultSet rset, final Statement stmt)
-              throws SQLException {
-            rset.next();
-            return rset.getInt(1);
-          }
-        });
-    assertEquals(0, totalRows);
-  }
+        final int totalRows = new JdbcSession(this.dataSource)
+                .sql("select count(*) from ar_cpfw_jqueue")
+                .select((rset, stmt) -> {
+                    rset.next();
+                    return rset.getInt(1);
+                });
+        assertEquals(0, totalRows);
+    }
 
-  public void failJobIsNotExecutedYet() throws SQLException {
-    new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
-        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
-        .set("default").set("wrongJob")
-        .set(Timestamp.valueOf(LocalDateTime.now())).execute();
+    public void failJobIsNotExecutedYet() throws SQLException {
+        new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
+                        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
+                .set("default").set("wrongJob")
+                .set(Timestamp.valueOf(LocalDateTime.now())).execute();
 
-    var runner = JQueueRunner.runner(this.dataSource);
-    runner.executeAll(new Job() {
-      @Override
-      public void run(String data) {
-        throw new RuntimeException(JOB_FAILED);
-      }
-    });
-
-    JQueueRunner.runner(this.dataSource);
-    runner.executeAll(new Job() {
-      @Override
-      public void run(String data) {
-        fail("The job should not be executed");
-      }
-    });
-
-    final int totalRows = new JdbcSession(this.dataSource)
-        .sql("select count(*) from ar_cpfw_jqueue")
-        .select(new Outcome<Integer>() {
-          @Override
-          public Integer handle(final ResultSet rset, final Statement stmt)
-              throws SQLException {
-            rset.next();
-            return rset.getInt(1);
-          }
+        var runner = JQueueRunner.runner(this.dataSource);
+        runner.executeAll(data -> {
+            throw new RuntimeException(JOB_FAILED);
         });
 
-    assertEquals(1, totalRows);
-  }
+        JQueueRunner.runner(this.dataSource);
+        runner.executeAll(data -> fail("The job should not be executed"));
 
-  public void jobThatFailsIsPushedBack() throws SQLException {
-    new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
-        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
-        .set("default").set("wrongJob")
-        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(2))).execute();
+        final int totalRows = new JdbcSession(this.dataSource)
+                .sql("select count(*) from ar_cpfw_jqueue")
+                .select((rset, stmt) -> {
+                    rset.next();
+                    return rset.getInt(1);
+                });
 
-    var runner = JQueueRunner.runner(this.dataSource);
-    runner.executeAll(new Job() {
-      @Override
-      public void run(String data) {
-        throw new RuntimeException(JOB_FAILED);
-      }
-    });
+        assertEquals(1, totalRows);
+    }
 
-    Map<String, String> outcome = new JdbcSession(this.dataSource)
-        .sql("select channel, data, attempt, delay from ar_cpfw_jqueue")
-        .select(new Outcome<Map<String, String>>() {
-          @Override
-          public Map<String, String> handle(final ResultSet rset,
-              final Statement stmt) throws SQLException {
+    public void jobThatFailsIsPushedBack() throws SQLException {
+        new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
+                        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
+                .set("default").set("wrongJob")
+                .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(2))).execute();
 
-            rset.next();
-            return Map.of("channel", rset.getString(1), "data",
-                rset.getString(2), "attempt", String.valueOf(rset.getInt(3)),
-                "delay", String.valueOf(rset.getInt(4)));
-          }
+        var runner = JQueueRunner.runner(this.dataSource);
+        runner.executeAll(data -> {
+            throw new RuntimeException(JOB_FAILED);
         });
 
-    assertEquals("default", outcome.get("channel"));
-    assertEquals("wrongJob", outcome.get("data"));
-    assertEquals("1", outcome.get("attempt"));
-    assertEquals("5", outcome.get("delay"));
-  }
+        Map<String, String> outcome = new JdbcSession(this.dataSource)
+                .sql("select channel, data, attempt, delay from ar_cpfw_jqueue")
+                .select((rset, stmt) -> {
 
-  public void runnerWorksWithTwoJobs() throws SQLException {
-    new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
-        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
-        .set("default").set("FirstJob")
-        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(3))).execute();
+                    rset.next();
+                    return Map.of("channel", rset.getString(1), "data",
+                            rset.getString(2), "attempt", String.valueOf(rset.getInt(3)),
+                            "delay", String.valueOf(rset.getInt(4)));
+                });
 
-    new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue"
-        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
-        .set("default").set("SecondJob")
-        .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(1))).execute();
+        assertEquals("default", outcome.get("channel"));
+        assertEquals("wrongJob", outcome.get("data"));
+        assertEquals("1", outcome.get("attempt"));
+        assertEquals("5", outcome.get("delay"));
+    }
 
-    var jobsData = new ArrayList<String>();
+    public void runnerWorksWithTwoJobs() throws SQLException {
+        new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue "
+                        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
+                .set("default").set("FirstJob")
+                .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(3))).execute();
 
-    var runner = JQueueRunner.runner(this.dataSource);
-    runner.executeAll(new Job() {
-      @Override
-      public void run(String data) {
-        jobsData.add(data);
-      }
-    });
+        new JdbcSession(this.dataSource).sql("insert into ar_cpfw_jqueue"
+                        + "(channel, data, attempt, delay, pushed_at) values (?, ?, null, 0, ?)")
+                .set("default").set("SecondJob")
+                .set(Timestamp.valueOf(LocalDateTime.now().minusMinutes(1))).execute();
 
-    assertEquals(2, jobsData.size());
-    assertEquals("FirstJob", jobsData.get(0));
-    assertEquals("SecondJob", jobsData.get(1));
+        var jobsData = new ArrayList<String>();
 
-    final int totalRows = new JdbcSession(this.dataSource)
-        .sql("select count(*) from ar_cpfw_jqueue")
-        .select(new Outcome<Integer>() {
-          @Override
-          public Integer handle(final ResultSet rset, final Statement stmt)
-              throws SQLException {
-            rset.next();
-            return rset.getInt(1);
-          }
-        });
+        var runner = JQueueRunner.runner(this.dataSource);
+        runner.executeAll(data -> jobsData.add(data));
 
-    assertEquals(0, totalRows);
-  }
+        assertEquals(2, jobsData.size());
+        assertEquals("FirstJob", jobsData.get(0));
+        assertEquals("SecondJob", jobsData.get(1));
+
+        final int totalRows = new JdbcSession(this.dataSource)
+                .sql("select count(*) from ar_cpfw_jqueue")
+                .select((rset, stmt) -> {
+                    rset.next();
+                    return rset.getInt(1);
+                });
+
+        assertEquals(0, totalRows);
+    }
 }

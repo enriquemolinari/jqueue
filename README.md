@@ -156,7 +156,7 @@ public class UserController {
 
 ## Requirements
 
-JQueue currently supports PostgreSQL 9.5+ and MySQL 8.0+. To work properly, it uses the `select for update skip locked` which is a feature that some relational databases have incorporated few years ago. This feature eliminates any type of contention that might occure when queues are implemented using SQL.
+JQueue currently supports PostgreSQL 9.5+ and MySQL 8.0+. To work properly, it uses the `select for update skip locked` which is a feature that some relational databases have incorporated few years ago. This feature eliminates any type of contention that might occur when queues are implemented using SQL.
 
 JQueue requires the following table in your data store:
 
@@ -164,9 +164,10 @@ JQueue requires the following table in your data store:
 CREATE TABLE ar_cpfw_jqueue
 (
   id int NOT NULL auto_increment, --MySQL
---  id serial,						  --PostgreSQL
+--  id serial,				      --PostgreSQL
+--  id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), --Derby
   channel varchar(100) NOT NULL,
-  data text NOT NULL,
+  data text NOT NULL, --Derby does not have text datatype, use CLOB
   attempt int,
   delay int,
   pushed_at timestamp,
