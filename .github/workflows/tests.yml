@@ -27,10 +27,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: "17"
-      - name: Setup Testcontainers Cloud Client
-        uses: atomicjar/testcontainers-cloud-setup-action@v1
-        with:
-          token: ${{ secrets.TC_CLOUD_TOKEN }}
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
