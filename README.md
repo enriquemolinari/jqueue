@@ -35,9 +35,7 @@ To push something on the default channel of the queue you can do this:
 
 ```java
 JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */)
- .
-
-push(
+ .push(
    "{\"type\": \"job_type1\", \"event\":{\"id\": \"an id\", \"value\": \"\" }}");
 ```
 
@@ -45,11 +43,7 @@ To push something on an specific channel of the queue you can do this:
 
 ```java
 JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */)
- .
-
-channel("achannel").
-
-push(
+ .channel("achannel").push(
    "{\"type\": \"job_type1\", \"event\":{\"id\": \"an id\", \"value\": \"\" }}");
 ```
 
@@ -60,11 +54,9 @@ The following snippet executes all the entries in the queue in a loop until is e
 
 ```java
 JQueueRunner.runner(/* a JDBC DataSource */)
- .
-
-executeAll(new Job() {
+ .executeAll(new Job() {
     @Override
-    public void run (String data){
+    public void run(String data) {
         //do something with data
     }
 });
@@ -84,61 +76,34 @@ work you do in your application) and after that, **within the same Tx**, you wil
 
 ```java
 Connection conn = connection();
-try{
-        conn.
-
-setAutoCommit(false);
+try {
+        conn.setAutoCommit(false);
 
 //your business logic first
 final PreparedStatement st = conn.prepareStatement(
         "insert into user(id, user_name, pwd, email) values(108,  'user1','anyPassword','user1@dot.com')");
- st.
-
-executeUpdate();
+ st.executeUpdate();
 
 //then push an event
- JTxQueue.
+ JTxQueue.queue(conn)
+     .push(new NewUserEvent(108, "user1", "user1@dot.com").toJson());
 
-queue(conn)
-     .
-
-push(new NewUserEvent(108, "user1","user1@dot.com").
-
-toJson());
-
-        conn.
-
-commit();
-}catch(SQLException |
-JQueueException e){
-        try{
-        conn.
-
-rollback();
-   throw new
-
-RuntimeException(e);
- }catch(
-SQLException e1){
-        throw new
-
-RuntimeException(e1);
+        conn.commit();
+} catch (SQLException | JQueueException e) {
+        try {
+        conn.rollback();
+   throw new RuntimeException(e);
+ } catch (SQLException e1) {
+        throw new RuntimeException(e1);
  }
-         }finally{
-         try{
-         conn.
-
-setAutoCommit(true);
-   conn.
-
-close();
- }catch(
-SQLException e){
-        throw new
-
-RuntimeException(e);
+         } finally {
+         try {
+         conn.setAutoCommit(true);
+   conn.close();
+ } catch (SQLException e) {
+        throw new RuntimeException(e);
  }
-         }
+}
 ```
 
 ### Using Plain JPA/Hibernate
@@ -148,57 +113,35 @@ EntityManagerFactory emf =
         Persistence.createEntityManagerFactory("...");
 EntityManager em = emf.createEntityManager();
 EntityTransaction tx = em.getTransaction();
-try{
-        tx.
-
-begin();
-
+try {
+        tx.begin();
 //your business logic first
 User u = new User("username1", "pwd1", "user@dot.com");
- em.
-
-persist(u);
-
+ em.persist(u);
 //Then push an event
 Session session = em.unwrap(Session.class);
- session.
-
-doWork(new Work() {
+ session.doWork(new Work() {
     @Override
-    public void execute (Connection connection) throws SQLException {
+    public void execute(Connection connection) throws SQLException {
         JTxQueue.queue(connection)
                 .push(new NewUserEvent(u.id(), u.userName(), u.email()).toJson());
     }
 });
-        tx.
-
-commit();
-}catch(
-Exception e){
-        tx.
-
-rollback();
- throw new
-
-RuntimeException(e);
-}finally{
-        if(em !=null&&em.
-
-isOpen())
-        em.
-
-close();
- if(emf !=null)
-        emf.
-
-close();
+        tx.commit();
+} catch (Exception e) {
+        tx.rollback();
+ throw new RuntimeException(e);
+} finally {
+        if (em != null && em.isOpen())
+        em.close();
+ if (emf != null)
+        emf.close();
 }
 ```
 
 ### Using Spring
 
 ```java
-
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
