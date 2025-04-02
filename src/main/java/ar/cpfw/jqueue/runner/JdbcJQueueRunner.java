@@ -23,7 +23,7 @@ class JdbcJQueueRunner implements JQueueRunner {
 
     public JdbcJQueueRunner(String url, String user, String pwd, final String table) {
         assertConnStrIsNotNull(url, user, pwd);
-        assertConnStrIsNotBlank(url, user, pwd);
+        assertConnStrIsNotBlank(url, user);
         this.connStr = new ConnStr(url, user, pwd);
         this.tableName = table;
     }
@@ -136,9 +136,9 @@ class JdbcJQueueRunner implements JQueueRunner {
         Objects.requireNonNull(pwd, "pwd must not be null");
     }
 
-    private void assertConnStrIsNotBlank(String url, String user, String pwd) {
-        if (url.isBlank() || user.isBlank() || pwd.isBlank()) {
-            throw new IllegalArgumentException("url, user and pwd must not be blank");
+    private void assertConnStrIsNotBlank(String url, String user) {
+        if (url.isBlank() || user.isBlank()) {
+            throw new IllegalArgumentException("url and user must not be blank");
         }
     }
 }

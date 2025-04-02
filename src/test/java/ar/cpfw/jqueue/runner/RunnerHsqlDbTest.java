@@ -17,7 +17,7 @@ public class RunnerHsqlDbTest {
 
     public static final String URL = "jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true";
     public static final String USER = "SA";
-    public static final String PWD = "pwd";
+    public static final String PWD = "";
 
     @BeforeEach
     void setUp() throws SQLException {
