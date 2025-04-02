@@ -1,6 +1,6 @@
 # JQueue - An extremely lightweight Relational Database Java Queue
 
-![CI](https://github.com/enriquemolinari/jqueue/actions/workflows/tests.yml/badge.svg) [![codecov](https://codecov.io/gh/enriquemolinari/jqueue/branch/main/graph/badge.svg?token=GXRDRAK5GH)](https://codecov.io/gh/enriquemolinari/jqueue) [![Maintainability](https://api.codeclimate.com/v1/badges/c5c3e4a53ba6faf2d9cc/maintainability)](https://codeclimate.com/github/enriquemolinari/jqueue/maintainability) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b53906357ca24c369a3d23cffbad231c)](https://www.codacy.com/gh/enriquemolinari/jqueue/dashboard?utm_source=github.com&utm_medium=referral&utm_content=enriquemolinari/jqueue&utm_campaign=Badge_Grade)
+![CI](https://github.com/enriquemolinari/jqueue/actions/workflows/tests.yml/badge.svg) [![codecov](https://codecov.io/gh/enriquemolinari/jqueue/branch/main/graph/badge.svg?token=GXRDRAK5GH)](https://codecov.io/gh/enriquemolinari/jqueue) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b53906357ca24c369a3d23cffbad231c)](https://www.codacy.com/gh/enriquemolinari/jqueue/dashboard?utm_source=github.com&utm_medium=referral&utm_content=enriquemolinari/jqueue&utm_campaign=Badge_Grade)
 
 ## Why JQueue ?
 
