@@ -18,13 +18,13 @@ final class JdbcJQueue implements JTxQueue {
             "An instance of java.sql.Connection is necesary";
     private static final String DEFAULT_CHANNEL = "default";
     private static final String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
-    private final Connection currentInTxConnection;
+    private final Connection connection;
     private final String databaseTableName;
     private String channel;
 
-    public JdbcJQueue(final Connection currentInTxConnection, final String tableName) {
-        Objects.requireNonNull(currentInTxConnection, CONN_IS_NECESARY);
-        this.currentInTxConnection = currentInTxConnection;
+    public JdbcJQueue(final Connection connection, final String tableName) {
+        Objects.requireNonNull(connection, CONN_IS_NECESARY);
+        this.connection = connection;
         this.databaseTableName = tableName;
     }
 
@@ -39,7 +39,7 @@ final class JdbcJQueue implements JTxQueue {
 
         try {
             final PreparedStatement st =
-                    this.currentInTxConnection.prepareStatement("insert into " + table
+                    this.connection.prepareStatement("insert into " + table
                             + " (channel, data, attempt, delay, pushed_at) "
                             + "values (?, ?, null, 0, ?)");
 
