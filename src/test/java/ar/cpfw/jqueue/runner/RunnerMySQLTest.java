@@ -2,6 +2,7 @@ package ar.cpfw.jqueue.runner;
 
 import com.jcabi.jdbc.JdbcSession;
 import com.mysql.cj.jdbc.MysqlDataSource;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.JdbcDatabaseContainer;
@@ -33,7 +34,7 @@ public class RunnerMySQLTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        final var dataSource = this.source();
+        final var dataSource = this.mySqlSource();
 
         new JdbcSession(dataSource).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue")
                 .execute();
@@ -48,25 +49,53 @@ public class RunnerMySQLTest {
 
     @Test
     void runnerWorksWithOneJob() throws SQLException {
-        new RunnerUseCases(source()).runnerWorksWithOneJob();
+        getWithDataSourceConstructor().runnerWorksWithOneJob(mySqlSource());
+    }
+
+    @Test
+    void runnerWorksWithOneJobDMConstructor() throws SQLException {
+        getWithDriverManagerConstructor().runnerWorksWithOneJob(mySqlSource());
     }
 
     @Test
     void failJobIsNotExecutedYet() throws SQLException {
-        new RunnerUseCases(source()).failJobIsNotExecutedYet();
+        getWithDataSourceConstructor().failJobIsNotExecutedYet(mySqlSource());
+    }
+
+    @Test
+    void failJobIsNotExecutedYetDMConstructor() throws SQLException {
+        getWithDriverManagerConstructor().failJobIsNotExecutedYet(mySqlSource());
     }
 
     @Test
     void jobThatFailsIsPushedBack() throws SQLException {
-        new RunnerUseCases(source()).jobThatFailsIsPushedBack();
+        getWithDataSourceConstructor().jobThatFailsIsPushedBack(mySqlSource());
+    }
+
+    @Test
+    void jobThatFailsIsPushedBackDMConstructor() throws SQLException {
+        getWithDriverManagerConstructor().jobThatFailsIsPushedBack(mySqlSource());
     }
 
     @Test
     void runnerWorksWithTwoJobs() throws SQLException {
-        new RunnerUseCases(source()).runnerWorksWithTwoJobs();
+        getWithDataSourceConstructor().runnerWorksWithTwoJobs(mySqlSource());
     }
 
-    private DataSource source() {
+    @Test
+    void runnerWorksWithTwoJobsDMConstructor() throws SQLException {
+        getWithDriverManagerConstructor().runnerWorksWithTwoJobs(mySqlSource());
+    }
+
+    private @NotNull RunnerUseCases getWithDataSourceConstructor() {
+        return new RunnerUseCases(mySqlSource());
+    }
+
+    private @NotNull RunnerUseCases getWithDriverManagerConstructor() {
+        return new RunnerUseCases(this.container.getJdbcUrl(), this.container.getUsername(), this.container.getPassword());
+    }
+
+    private DataSource mySqlSource() {
         final MysqlDataSource src = new MysqlDataSource();
         src.setUrl(this.container.getJdbcUrl());
         src.setUser(this.container.getUsername());

@@ -1,6 +1,7 @@
 package ar.cpfw.jqueue.runner;
 
 import com.jcabi.jdbc.JdbcSession;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.postgresql.ds.PGSimpleDataSource;
@@ -26,7 +27,9 @@ public class RunnerPgTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        final var dataSource = this.source();
+//        if (!container.isCreated())
+//            container.start();
+        final var dataSource = this.pgSource();
 
         new JdbcSession(dataSource).sql("DROP TABLE IF EXISTS ar_cpfw_jqueue")
                 .execute();
@@ -40,31 +43,57 @@ public class RunnerPgTest {
 
     @Test
     void runnerWorksWithOneJob() throws SQLException {
-        new RunnerUseCases(source()).runnerWorksWithOneJob();
+        getWithDataSourceConstructor().runnerWorksWithOneJob(pgSource());
+    }
+
+    @Test
+    void runnerWorksWithOneJobDMConstructor() throws SQLException {
+        getWithDriverManagerConstructor().runnerWorksWithOneJob(pgSource());
+    }
+
+    private @NotNull RunnerUseCases getWithDataSourceConstructor() {
+        return new RunnerUseCases(pgSource());
+    }
+
+    private @NotNull RunnerUseCases getWithDriverManagerConstructor() {
+        return new RunnerUseCases(this.container.getJdbcUrl(), this.container.getUsername(), this.container.getPassword());
     }
 
     @Test
     void failJobIsNotExecutedYet() throws SQLException {
-        new RunnerUseCases(source()).failJobIsNotExecutedYet();
+        getWithDataSourceConstructor().failJobIsNotExecutedYet(pgSource());
+    }
+
+    @Test
+    void failJobIsNotExecutedYetDMConstructor() throws SQLException {
+        getWithDriverManagerConstructor().failJobIsNotExecutedYet(pgSource());
     }
 
     @Test
     void jobThatFailsIsPushedBack() throws SQLException {
-        new RunnerUseCases(source()).jobThatFailsIsPushedBack();
+        getWithDataSourceConstructor().jobThatFailsIsPushedBack(pgSource());
+    }
+
+    @Test
+    void jobThatFailsIsPushedBackDMConstructor() throws SQLException {
+        getWithDriverManagerConstructor().jobThatFailsIsPushedBack(pgSource());
     }
 
     @Test
     void runnerWorksWithTwoJobs() throws SQLException {
-        new RunnerUseCases(source()).runnerWorksWithTwoJobs();
+        getWithDataSourceConstructor().runnerWorksWithTwoJobs(pgSource());
     }
 
+    @Test
+    void runnerWorksWithTwoJobsDMConstructor() throws SQLException {
+        getWithDriverManagerConstructor().runnerWorksWithTwoJobs(pgSource());
+    }
 
-    private DataSource source() {
+    private DataSource pgSource() {
         final PGSimpleDataSource src = new PGSimpleDataSource();
         src.setUrl(this.container.getJdbcUrl());
         src.setUser(this.container.getUsername());
         src.setPassword(this.container.getPassword());
         return src;
     }
-
 }

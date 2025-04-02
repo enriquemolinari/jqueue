@@ -78,7 +78,7 @@ public class PushTableNameHsqlDbTest {
                 .execute();
 
         try {
-            var queue = JTxQueue.queue(ds, "schema1jqueuetable");
+            var queue = JTxQueue.queue(ds.getConnection(), "schema1jqueuetable");
             queue.channel("anotherChannel").push("Hola Mundo!");
 
         } finally {

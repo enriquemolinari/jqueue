@@ -3,12 +3,22 @@ package ar.cpfw.jqueue.runner;
 import com.jcabi.jdbc.JdbcSession;
 import org.hsqldb.jdbc.JDBCDataSource;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.stream.Stream;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RunnerHsqlDbTest {
+
+    public static final String URL = "jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true";
+    public static final String USER = "SA";
+    public static final String PWD = "pwd";
+
     @BeforeEach
     void setUp() throws SQLException {
         final var dataSource = hSqlDataSource();
@@ -22,31 +32,42 @@ public class RunnerHsqlDbTest {
                 .execute();
     }
 
-    @Test
-    void runnerWorksWithOneJob() throws SQLException {
-        new RunnerUseCases(hSqlDataSource()).runnerWorksWithOneJob();
+    @ParameterizedTest
+    @MethodSource("provideRunnerInstances")
+    void runnerWorksWithOneJob(RunnerUseCases useCases) throws SQLException {
+        useCases.runnerWorksWithOneJob(hSqlDataSource());
     }
 
-    @Test
-    void failJobIsNotExecutedYet() throws SQLException {
-        new RunnerUseCases(hSqlDataSource()).failJobIsNotExecutedYet();
+    @ParameterizedTest
+    @MethodSource("provideRunnerInstances")
+    void failJobIsNotExecutedYet(RunnerUseCases useCases) throws SQLException {
+        useCases.failJobIsNotExecutedYet(hSqlDataSource());
     }
 
-    @Test
-    void jobThatFailsIsPushedBack() throws SQLException {
-        new RunnerUseCases(hSqlDataSource()).jobThatFailsIsPushedBack();
+    @ParameterizedTest
+    @MethodSource("provideRunnerInstances")
+    void jobThatFailsIsPushedBack(RunnerUseCases useCases) throws SQLException {
+        useCases.jobThatFailsIsPushedBack(hSqlDataSource());
     }
 
-    @Test
-    void runnerWorksWithTwoJobs() throws SQLException {
-        new RunnerUseCases(hSqlDataSource()).runnerWorksWithTwoJobs();
+    @ParameterizedTest
+    @MethodSource("provideRunnerInstances")
+    void runnerWorksWithTwoJobs(RunnerUseCases useCases) throws SQLException {
+        useCases.runnerWorksWithTwoJobs(hSqlDataSource());
+    }
+
+    Stream<Arguments> provideRunnerInstances() {
+        return Stream.of(
+                Arguments.of(new RunnerUseCases(hSqlDataSource())),
+                Arguments.of(new RunnerUseCases(URL, USER, PWD))
+        );
     }
 
     private DataSource hSqlDataSource() {
         final var dataSource = new JDBCDataSource();
-        dataSource.setUrl("jdbc:hsqldb:mem:testdb;sql.syntax_pgs=true");
-        dataSource.setUser("SA");
-        dataSource.setPassword("");
+        dataSource.setUrl(URL);
+        dataSource.setUser(USER);
+        dataSource.setPassword(PWD);
         return dataSource;
     }
 }

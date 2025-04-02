@@ -11,6 +11,14 @@ public interface JQueueRunner {
         return new JdbcJQueueRunner(dataSource, null);
     }
 
+    static JQueueRunner runner(String url, String user, String pwd, String tableName) {
+        return new JdbcJQueueRunner(url, user, pwd, tableName);
+    }
+
+    static JQueueRunner runner(String url, String user, String pwd) {
+        return new JdbcJQueueRunner(url, user, pwd, null);
+    }
+
     void executeAll(Job job);
 
     JQueueRunner channel(String channelName);

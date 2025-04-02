@@ -16,10 +16,17 @@ class JdbcJQueueRunner implements JQueueRunner {
     private static final int PK_COLUMN = 1;
     private static final String DEFAULT_CHANNEL = "default";
     private static final String QUEUE_TABLE_NAME = "ar_cpfw_jqueue";
-    private final DataSource dataSource;
+    private DataSource dataSource;
     private final String tableName;
     private String channel;
+    private ConnStr connStr;
 
+    public JdbcJQueueRunner(String url, String user, String pwd, final String table) {
+        assertConnStrIsNotNull(url, user, pwd);
+        assertConnStrIsNotBlank(url, user, pwd);
+        this.connStr = new ConnStr(url, user, pwd);
+        this.tableName = table;
+    }
 
     public JdbcJQueueRunner(final DataSource source, final String table) {
         Objects.requireNonNull(source, "dataSource must not be null");
@@ -32,7 +39,7 @@ class JdbcJQueueRunner implements JQueueRunner {
         try {
             doExectute(job);
         } catch (Exception e) {
-            throw new JQueueException(e, "executeAll all could not be done");
+            throw new JQueueException(e, "executeAll could not be done");
         }
     }
 
@@ -41,7 +48,8 @@ class JdbcJQueueRunner implements JQueueRunner {
                 this.channel != null ? this.channel : DEFAULT_CHANNEL;
         final var table =
                 this.tableName != null ? this.tableName : QUEUE_TABLE_NAME;
-        final var conn = this.dataSource.getConnection();
+        final var conn = this.dataSource != null
+                ? this.dataSource.getConnection() : getConn();
         final var queryBuilder = QueryBuilder.build(conn, table);
 
         try {
@@ -71,6 +79,15 @@ class JdbcJQueueRunner implements JQueueRunner {
         } finally {
             conn.setAutoCommit(true);
             conn.close();
+        }
+    }
+
+    private Connection getConn() {
+        try {
+            return DriverManager.getConnection(this.connStr.url()
+                    , this.connStr.user(), this.connStr.pwd());
+        } catch (SQLException e) {
+            throw new JQueueException(e, "java.sql.Connection could not be obtained");
         }
     }
 
@@ -113,4 +130,18 @@ class JdbcJQueueRunner implements JQueueRunner {
         return this;
     }
 
+    private void assertConnStrIsNotNull(String url, String user, String pwd) {
+        Objects.requireNonNull(url, "url must not be null");
+        Objects.requireNonNull(user, "user must not be null");
+        Objects.requireNonNull(pwd, "pwd must not be null");
+    }
+
+    private void assertConnStrIsNotBlank(String url, String user, String pwd) {
+        if (url.isBlank() || user.isBlank() || pwd.isBlank()) {
+            throw new IllegalArgumentException("url, user and pwd must not be blank");
+        }
+    }
+}
+
+record ConnStr(String url, String user, String pwd) {
 }

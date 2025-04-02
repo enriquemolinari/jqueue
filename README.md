@@ -27,14 +27,14 @@ Add the dependency to your project:
 <dependency>
     <groupId>io.github.enriquemolinari</groupId>
     <artifactId>jqueue</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
 </dependency>
 ```
 
 To push something on the default channel of the queue you can do this:
 
 ```java
-JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */)
+JTxQueue.queue(/*a JDBC Connection being used*/)
  .push(
    "{\"type\": \"job_type1\", \"event\":{\"id\": \"an id\", \"value\": \"\" }}");
 ```
@@ -42,18 +42,18 @@ JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */)
 To push something on an specific channel of the queue you can do this:
 
 ```java
-JTxQueue.queue(/*a JDBC Data Source or a JDBC Connection */)
+JTxQueue.queue(/*a JDBC Connection being used*/)
  .channel("achannel").push(
    "{\"type\": \"job_type1\", \"event\":{\"id\": \"an id\", \"value\": \"\" }}");
 ```
 
-Make sure that the `dataSource` or `connection` you pass as argument to the `queue` factory method above is the one you
+Make sure that the `connection` you pass as argument to the `queue` factory method above is the one you
 use to open the transaction which then later will be committed or rolledback.
 
 The following snippet executes all the entries in the queue in a loop until is empty:
 
 ```java
-JQueueRunner.runner(/* a JDBC DataSource */)
+JQueueRunner.runner(/* a JDBC DataSource or url/user/pass */)
  .executeAll(new Job() {
     @Override
     public void run(String data) {
@@ -158,9 +158,12 @@ public class UserController {
     public User create(@RequestBody User user) throws SQLException {
         //your business logic first
         User u = userRepository.save(user);
-
+        
+        //obtain current executed connection
+        var conn = DataSourceUtils.getConnection(dataSource);
+        
         //then push an event
-        JTxQueue.queue(dataSource)
+        JTxQueue.queue(conn)
                 .push(new NewUserEvent(u.id(), u.getUserName(), u.email()).toJson());
 
         return u;
@@ -170,7 +173,7 @@ public class UserController {
 
 ## Requirements
 
-JQueue currently supports PostgreSQL 9.5+ and MySQL 8.0+. To work properly, it uses the `select for update skip locked`
+JQueue currently supports PostgreSQL 9.5+ and MySQL 8.0+ (and HSQLDB and Derby). To work properly, it uses the `select for update skip locked`
 which is a feature that some relational databases have incorporated few years ago. This feature eliminates any type of
 contention that might occur when queues are implemented using SQL.
 

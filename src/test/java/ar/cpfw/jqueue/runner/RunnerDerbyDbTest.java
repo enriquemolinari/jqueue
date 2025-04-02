@@ -4,13 +4,19 @@ import ar.cpfw.jqueue.push.PushDerbyDbTest;
 import com.jcabi.jdbc.JdbcSession;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.stream.Stream;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RunnerDerbyDbTest {
     public static final String JDBC_DERBYDB = "memory:testdb";
+    public static final String JDBC_DERBYDB_DM = "jdbc:derby:" + JDBC_DERBYDB;
     public static final String USER = "app";
     public static final String PWD = "app";
 
@@ -28,24 +34,35 @@ public class RunnerDerbyDbTest {
                 .execute();
     }
 
-    @Test
-    void runnerWorksWithOneJob() throws SQLException {
-        new RunnerUseCases(derbyDataSource()).runnerWorksWithOneJob();
+    @ParameterizedTest
+    @MethodSource("provideRunnerInstances")
+    void runnerWorksWithOneJob(RunnerUseCases useCases) throws SQLException {
+        useCases.runnerWorksWithOneJob(derbyDataSource());
     }
 
-    @Test
-    void failJobIsNotExecutedYet() throws SQLException {
-        new RunnerUseCases(derbyDataSource()).failJobIsNotExecutedYet();
+    @ParameterizedTest
+    @MethodSource("provideRunnerInstances")
+    void failJobIsNotExecutedYet(RunnerUseCases useCases) throws SQLException {
+        useCases.failJobIsNotExecutedYet(derbyDataSource());
     }
 
-    @Test
-    void jobThatFailsIsPushedBack() throws SQLException {
-        new RunnerUseCases(derbyDataSource()).jobThatFailsIsPushedBack();
+    @ParameterizedTest
+    @MethodSource("provideRunnerInstances")
+    void jobThatFailsIsPushedBack(RunnerUseCases useCases) throws SQLException {
+        useCases.jobThatFailsIsPushedBack(derbyDataSource());
     }
 
-    @Test
-    void runnerWorksWithTwoJobs() throws SQLException {
-        new RunnerUseCases(derbyDataSource()).runnerWorksWithTwoJobs();
+    @ParameterizedTest
+    @MethodSource("provideRunnerInstances")
+    void runnerWorksWithTwoJobs(RunnerUseCases useCases) throws SQLException {
+        useCases.runnerWorksWithTwoJobs(derbyDataSource());
+    }
+
+    Stream<Arguments> provideRunnerInstances() {
+        return Stream.of(
+                Arguments.of(new RunnerUseCases(derbyDataSource())),
+                Arguments.of(new RunnerUseCases(JDBC_DERBYDB_DM, USER, PWD))
+        );
     }
 
     private DataSource derbyDataSource() {
